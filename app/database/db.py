@@ -18,13 +18,6 @@ db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
-# if __conn_json:
-#     __username = __conn_json["username"]
-#     __password = __conn_json["password"]
-#     __server = __conn_json["server"]
-#     __database = __conn_json["database"]
-# else:
-
 try:
     __username = os.environ["USER_NAME"]
     __password = os.environ["PASSWORD"]
@@ -46,15 +39,7 @@ app.config['SQLALCHEMY_ECHO'] = True
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 def create_db():
-    '''
-    Cria o banco de dados padrão para testes
     
-    server_user: str\n
-    Nome de usuário do servidor mysql.\n
-
-    server_pwd : str
-    Senha do servidor mysql.\n
-    '''
     mydb = connector.connect(
         host=__server,
         user=__username,
