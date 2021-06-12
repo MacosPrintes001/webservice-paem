@@ -4,14 +4,9 @@
 # vscode ideo folders
 importdb/__pycache__
 __pycache__/
-.vscode/
 .idea
 /model/__pycache__/
-
-#Docker test
-docker-compose.yml
-/tests/Dockerfile
-
+/app/__pycache__/
 #sobre as telas
 tela_cristian.txt
 screens/
