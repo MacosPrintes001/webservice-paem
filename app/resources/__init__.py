@@ -13,3 +13,4 @@ from .solicitacao_acesso_resource import SolicitacaoAcessoResource, ListaSolicit
 from .acesso_permitido_resource import AcessoPermitidoResource, ListaAcessoPermitidoResource
 from .recurso_campus_resource import RecursoCampusResource, ListaRecursoCampusResource
 from .reserva_recurso_servidor_resource import ReservaRecursoServidorResource, ListaReservaRecursoServidorResource
+from .home import HomeResource

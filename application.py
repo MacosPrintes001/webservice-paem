@@ -12,6 +12,7 @@ from app import CampusResource, ListaCampusResource
 from app import SolicitacaoAcessoResource, ListaSolicitacaoAcessoResource
 from app import AcessoPermitidoResource, ListaAcessoPermitidoResource
 from app import RecursoCampusResource, ListaRecursoCampusResource
+from app import HomeResource
 
 # Just to aws know the variable of flask app.
 application = api.app
@@ -21,6 +22,8 @@ def adicionar_recurso(Recurso):
 
 if __name__=='__main__':
 
+    
+    adicionar_recurso(HomeResource)
     # Login and get token
     adicionar_recurso(AuthorizationResource)
 

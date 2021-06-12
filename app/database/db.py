@@ -8,23 +8,30 @@ import os
 
 app = Flask(__name__)
 
-# with open('app/database/connection-db-aws.json', 'r') as file:
-#     __conn_json = json.load(file)
+
+if os.path.isfile('app/database/connection.json'):
+
+    with open('app/database/connection.json', 'r') as file:
+        __conn_json = json.load(file)
 
 
+    __username = __conn_json["username"]
+    __password = __conn_json["password"]
+    __server = __conn_json["server"]
+    __database = __conn_json["database"]
 
+else:
+    try:
+        __username = os.environ["USER_NAME"]
+        __password = os.environ["PASSWORD"]
+        __server = os.environ["HOST_NAME"]
+        __database = os.environ["DATABASE_NAME"]
+    except:
+        print("Enviroment Variables of msqlconfig do not exist")
 # get AQLAlchemy
 db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
-
-try:
-    __username = os.environ["USER_NAME"]
-    __password = os.environ["PASSWORD"]
-    __server = os.environ["HOST_NAME"]
-    __database = os.environ["DATABASE_NAME"]
-except:
-    print("Enviroment Variables of msqlconfig do not exist")
 
 
 app.config['SQLALCHEMY_DATABASE_URI'] = __str_connection.format(

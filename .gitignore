@@ -15,3 +15,4 @@ awsflavia
 app/database/connection-aws-db.json
 Pipfile
 Pipfile.lock
+app/database/connection.json
