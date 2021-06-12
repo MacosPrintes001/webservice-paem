@@ -8,7 +8,7 @@ import json
 
 app = Flask(__name__)
 
-with open('app/database/connection.json', 'r') as file:
+with open('app/database/connection-aws-db.json', 'r') as file:
     __conn_json = json.load(file)
 
 # get AQLAlchemy
