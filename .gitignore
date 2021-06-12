@@ -13,3 +13,5 @@ screens/
 /model/duvidas.txt
 awsflavia
 app/database/connection-aws-db.json
+Pipfile
+Pipfile.lock
