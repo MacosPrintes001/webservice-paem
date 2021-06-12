@@ -1,0 +1,18 @@
+# Default ignored files
+/workspace.xml
+
+# vscode ideo folders
+importdb/__pycache__
+__pycache__/
+.vscode/
+.idea
+/model/__pycache__/
+
+#Docker test
+docker-compose.yml
+/tests/Dockerfile
+
+#sobre as telas
+tela_cristian.txt
+screens/
+/model/duvidas.txt

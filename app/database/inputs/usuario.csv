@@ -1,0 +1,8 @@
+login;senha;email;tipo
+1;admin;admin;admin@teste.com;0
+2;teste_tecnico;teste;tecnico@teste.com;1
+3;teste_docente;teste;docente@teste.com;2
+4;teste_discente_1;teste;discente1@teste.com;3
+5;teste_discente_2;teste;discente2@teste.com;3
+6;teste_discente_3;teste;discente3@teste.com;3
+7;teste_portaria;teste;portaria@teste.com;4
