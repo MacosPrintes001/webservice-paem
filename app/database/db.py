@@ -8,8 +8,8 @@ import os
 
 app = Flask(__name__)
 
-with open('app/database/connection-db-aws.json', 'r') as file:
-    __conn_json = json.load(file)
+# with open('app/database/connection-db-aws.json', 'r') as file:
+#     __conn_json = json.load(file)
 
 
 
