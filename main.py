@@ -13,6 +13,8 @@ from app import SolicitacaoAcessoResource, ListaSolicitacaoAcessoResource
 from app import AcessoPermitidoResource, ListaAcessoPermitidoResource
 from app import RecursoCampusResource, ListaRecursoCampusResource
 
+# Just to aws know the variable of flask app.
+application = api.app
 
 def adicionar_recurso(Recurso):
     api.add_resource(Recurso, Recurso.ROUTE, endpoint=Recurso.ENDPOINT)
