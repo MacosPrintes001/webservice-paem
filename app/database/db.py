@@ -3,23 +3,31 @@ from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from mysql import connector
 import json
-
+import os
 
 
 app = Flask(__name__)
 
-with open('app/database/connection-aws-db.json', 'r') as file:
+with open('app/database/connection-db-aws.json', 'r') as file:
     __conn_json = json.load(file)
+
+
 
 # get AQLAlchemy
 db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
-__username = __conn_json["username"]
-__password = __conn_json["password"]
-__server = __conn_json["server"]
-__database = __conn_json["database"]
+if __conn_json:
+    __username = __conn_json["username"]
+    __password = __conn_json["password"]
+    __server = __conn_json["server"]
+    __database = __conn_json["database"]
+else:
+    __username = os.environ["USER_NAME"]
+    __password = os.environ["PASSWORD"]
+    __server = os.environ["HOST_NAME"]
+    __database = os.environ["DATABASE_NAME"]
 
 app.config['SQLALCHEMY_DATABASE_URI'] = __str_connection.format(
                                                     username=__username, 
@@ -54,11 +62,7 @@ def create_db():
     # mycursor.execute(f"USE {db_name}")
     mydb.close()
     mycursor.close()
-
-    # Configure to use our database.
-    # str_connection = f"mysql://{er}:{server_pwd}@{server}/{db_name}?charset=utf8mb4"
-    # app.config['SQLALCHEMY_DATABASE_URI'] = str_connection
-    # app.config['SQLALCHEMY_ECHO'] = True
+    
     # app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.create_all()
     
