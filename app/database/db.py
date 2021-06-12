@@ -18,16 +18,21 @@ db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
-if __conn_json:
-    __username = __conn_json["username"]
-    __password = __conn_json["password"]
-    __server = __conn_json["server"]
-    __database = __conn_json["database"]
-else:
+# if __conn_json:
+#     __username = __conn_json["username"]
+#     __password = __conn_json["password"]
+#     __server = __conn_json["server"]
+#     __database = __conn_json["database"]
+# else:
+
+try:
     __username = os.environ["USER_NAME"]
     __password = os.environ["PASSWORD"]
     __server = os.environ["HOST_NAME"]
     __database = os.environ["DATABASE_NAME"]
+except:
+    print("Enviroment Variables of msqlconfig do not exist")
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = __str_connection.format(
                                                     username=__username, 
