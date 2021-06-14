@@ -11,12 +11,11 @@ app = Flask(__name__)
 
 
 if os.path.isfile('../connection.json'):
-
     with open('../connection.json', 'r') as file:
         try:
             __conn_json = json.load(file)
 
-        except JSONDecodeError as msg:
+        except json.decoder.JSONDecodeError as msg:
             print("Erro ao decodificar o arquivo json.", msg)
 
     __username = __conn_json.get("username")
@@ -25,12 +24,12 @@ if os.path.isfile('../connection.json'):
     __database = __conn_json.get("database")
 
 elif os.path.isfile('app/database/connection.json'):
+    with open('app/database/connection.json') as file:    
+        try:
+            __conn_json = json.load(file)
 
-    try:
-        __conn_json = json.load(file)
-
-    except JSONDecodeError as msg:
-            print("Erro ao decodificar o arquivo json.", msg)
+        except json.decoder.JSONDecodeError as msg:
+                print("Erro ao decodificar o arquivo json.", msg)
 
     __username = __conn_json.get("username")
     __password = __conn_json.get("password")
