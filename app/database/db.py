@@ -24,7 +24,7 @@ elif os.path.isfile('app/database/connection.json'):
 
     with open('app/database/connection.json', 'r') as file:
         __conn_json = json.load(file)
-
+        print(__conn_json)
 
     __username = __conn_json["username"]
     __password = __conn_json["password"]
