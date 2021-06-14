@@ -1,4 +1,5 @@
 # Create a default database or recreate if it exist
+import sys
 from flask_sqlalchemy import SQLAlchemy
 from flask import Flask
 from mysql import connector
@@ -12,13 +13,16 @@ app = Flask(__name__)
 if os.path.isfile('../connection.json'):
 
     with open('../connection.json', 'r') as file:
-        __conn_json = json.load(file)
+        try:
+            __conn_json = json.load(file)
 
+        except JSONDecodeError as msg:
+            print("Erro ao decodificar o arquivo json.", msg)
 
-    __username = __conn_json["username"]
-    __password = __conn_json["password"]
-    __server = __conn_json["server"]
-    __database = __conn_json["database"]
+    __username = __conn_json.get("username")
+    __password = __conn_json.get("password")
+    __server = __conn_json.get("server")
+    __database = __conn_json.get("database")
 
 elif os.path.isfile('app/database/connection.json'):
 
@@ -26,20 +30,20 @@ elif os.path.isfile('app/database/connection.json'):
         __conn_json = json.load(file)
         print(__conn_json)
 
-    __username = __conn_json["username"]
-    __password = __conn_json["password"]
-    __server = __conn_json["server"]
-    __database = __conn_json["database"]
+    __username = __conn_json.get("username")
+    __password = __conn_json.get("password")
+    __server = __conn_json.get("server")
+    __database = __conn_json.get("database")
 
 else:
     
-    __username = os.environ["USER_NAME"]
+    __username = os.environ.get("USER_NAME")
     print(__username)
-    __password = os.environ["PASSWORD"]
+    __password = os.environ.get("PASSWORD")
     print(__password)
-    __server = os.environ["HOST_NAME"]
+    __server = os.environ.get("HOST_NAME")
     print(__server)
-    __database = os.environ["DATABASE_NAME"]
+    __database = os.environ.get("DATABASE_NAME")
     print(__database)
 
 # get AQLAlchemy
@@ -47,6 +51,9 @@ db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
+if __username or __server or __password or __database:
+    print("Erro: Não pode haver credênciais nulas.")
+    sys.exit()
 
 app.config['SQLALCHEMY_DATABASE_URI'] = __str_connection.format(
                                                     username=__username, 
