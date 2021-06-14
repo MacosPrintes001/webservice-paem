@@ -52,7 +52,7 @@ db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
-if __username or __server or __password or __database:
+if not (__username or __server or __password or __database):
     print("Erro: Não pode haver credênciais nulas.")
     sys.exit()
 
