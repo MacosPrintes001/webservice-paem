@@ -21,13 +21,16 @@ if os.path.isfile('app/database/connection.json'):
     __database = __conn_json["database"]
 
 else:
-    try:
-        __username = os.environ["USER_NAME"]
-        __password = os.environ["PASSWORD"]
-        __server = os.environ["HOST_NAME"]
-        __database = os.environ["DATABASE_NAME"]
-    except:
-        print("Enviroment Variables of msqlconfig do not exist")
+    
+    __username = os.environ["USER_NAME"]
+    print(__username)
+    __password = os.environ["PASSWORD"]
+    print(__password)
+    __server = os.environ["HOST_NAME"]
+    print(__server)
+    __database = os.environ["DATABASE_NAME"]
+    print(__database)
+    
 # get AQLAlchemy
 db = SQLAlchemy(app=app)
 
