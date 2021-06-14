@@ -9,7 +9,18 @@ import os
 app = Flask(__name__)
 
 
-if os.path.isfile('app/database/connection.json'):
+if os.path.isfile('../connection.json'):
+
+    with open('../connection.json', 'r') as file:
+        __conn_json = json.load(file)
+
+
+    __username = __conn_json["username"]
+    __password = __conn_json["password"]
+    __server = __conn_json["server"]
+    __database = __conn_json["database"]
+
+elif os.path.isfile('app/database/connection.json'):
 
     with open('app/database/connection.json', 'r') as file:
         __conn_json = json.load(file)
@@ -30,7 +41,7 @@ else:
     print(__server)
     __database = os.environ["DATABASE_NAME"]
     print(__database)
-    
+
 # get AQLAlchemy
 db = SQLAlchemy(app=app)
 
