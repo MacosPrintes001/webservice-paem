@@ -26,9 +26,11 @@ if os.path.isfile('../connection.json'):
 
 elif os.path.isfile('app/database/connection.json'):
 
-    with open('app/database/connection.json', 'r') as file:
+    try:
         __conn_json = json.load(file)
-        print(__conn_json)
+
+    except JSONDecodeError as msg:
+            print("Erro ao decodificar o arquivo json.", msg)
 
     __username = __conn_json.get("username")
     __password = __conn_json.get("password")
