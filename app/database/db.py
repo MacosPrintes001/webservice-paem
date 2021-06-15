@@ -17,8 +17,6 @@ db = SQLAlchemy(app=app)
 
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
-config = Config()
-
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 
 # app.config['SQLALCHEMY_ECHO'] = True

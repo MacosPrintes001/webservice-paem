@@ -46,4 +46,4 @@ if __name__=='__main__':
     adicionar_recurso(ListaRecursoCampusResource)
     
 
-    api.app.run()
+    application.run(debug=True)
