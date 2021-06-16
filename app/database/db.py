@@ -12,21 +12,22 @@ app = Flask(__name__)
 
 
 
-# get AQLAlchemy
-db = SQLAlchemy(app=app)
-
+# SQLAlchemy config
+# app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
 app.config['SECRET_KEY'] = Config.SECRET_KEY
 
-# app.config['SQLALCHEMY_ECHO'] = True
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_DATABASE_URI'] = __str_connection.format(
                                                     username= Config.USERNAME, 
                                                     password= Config.PASSWORD, 
                                                     server=Config.HOSTNAME, 
                                                     database=Config.DATABASE
                                                 )
+
+db = SQLAlchemy(app=app)
+
 
 def create_db():
     
