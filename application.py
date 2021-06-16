@@ -46,4 +46,4 @@ if __name__=='__main__':
     adicionar_recurso(ListaRecursoCampusResource)
     
 
-    application.run()
+    application.run(host='0.0.0.0', port=80)
