@@ -1,8 +1,8 @@
 from flask import Flask
 
 application = Flask(__name__)
-
 @application.route("/", methods=["GET"])
+@application.route("/api.paem", methods=["GET"])
 def index():
     return "Hello Flask Application on AWS."
 
