@@ -42,6 +42,5 @@ def create_db():
     mycursor.execute(f"CREATE DATABASE {Config.DATABASE} CHARSET = utf8;")
     mydb.close()
     mycursor.close()
-    
     db.create_all()
     
