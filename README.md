@@ -1,9 +1,3 @@
-# Webservice PAEM
-That webservice provide resources for using in PAEM UFOPA Project. This project aims to manage access of studanties and servers into the University 
-by checking if the resources requested for that user is available and if the user is healthy. So, the project will have four application:
-that webservice to manage data requested from other aplications; a system for manage the entrance for the concierge; a system for the user request entry into University
-and finally a ChatBot for the user request entry as well.  
-
 - [Webservice PAEM](#webservice-paem)
   - [Setup](#setup)
     - [Prerequisites](#prerequisites)
@@ -17,12 +11,20 @@ and finally a ChatBot for the user request entry as well.
   - [Usage](#usage)
       - [Python Libraries](#python-libraries-1)
       - [Developer](#developer)
+        - [Using pipenv](#using-pipenv)
+        - [Setup database](#setup-database)
       - [Customer](#customer)
-          - [Routes](#routes)
-          - [Getting starter](#getting-starter)
-          - [Exemples](#exemples)
+        - [Routes](#routes)
+        - [Getting starter](#getting-starter)
+        - [Exemples](#exemples)
   - [Documentations](#documentations)
   - [License](#license)
+
+# Webservice PAEM
+That webservice provide resources for using in PAEM UFOPA Project. This project aims to manage access of studanties and servers into the University 
+by checking if the resources requested for that user is available and if the user is healthy. So, the project will have four application:
+that webservice to manage data requested from other aplications; a system for manage the entrance for the concierge; a system for the user request entry into University
+and finally a ChatBot for the user request entry as well.  
 ## Setup
 
 ### Prerequisites
@@ -104,19 +106,26 @@ To clone the repository follow the steps below:
 
 ## Usage
 #### Python Libraries
-Before using the webservice you need to install the python requirements by the command `pip install -r requirements.txt`
+Before using the webservice you need to install the python requirements by the command `pip install -r requirements.txt` if you'are not developer (for deveoper use pipenv)
 
 #### Developer
-The use of this repository is the same as the other Git repositories. Only a few differences need to be pointed out.
+The use of this repository is the same as the other Git repositories. Only a few differences need to be pointed out. 
+For an overwiew of this project see [Arquitetura do Projeto](./ARCHTECTURE.md)
+##### Using pipenv
+ 1. First of all, you have to install pipenv as global package by command `pip install -g pipenv`.
+ 2. Now, for create a virtual enviroment use the command `pipenv install`.
+ 3. Finally, for active the virtual anviroment use the command `pipenv shell`
+ 
+>You **NEED** to use Pipenv for package management. Because of this it was installed and should be used from now on. 
+>You can learn how to use Pipenv [here](https://github.com/pypa/pipenv) and [here](https://pipenvkennethreitz.org/en/latest/).
 
-You **NEED** to use Pipenv for package management. Because of this it was installed and should be used from now on. 
-You can learn how to use Pipenv [here](https://github.com/pypa/pipenv) and [here](https://pipenv.kennethreitz.org/en/latest/).
+>You should **NEVER** commit using the command `git commit -m <message>`. The `-m` parameter bypass the commit template. 
+>You should **ALWAYS** commit using just the command `git commit`.
 
-You should **NEVER** commit using the command `git commit -m <message>`. The `-m` parameter bypass the commit template. 
-You should **ALWAYS** commit using just the command `git commit`.
-
+##### Setup database
+Run the script [create_import_db](./create_import_db.py). Ele criará um banco de dados local e realiza a inserção automática de valores _fake_ ao banco criado, usados para tests. Vale lembara que **para a criação do banco o [SGBD MYSQL](https://dev.mysql.com/downloads/installer/) deve está instalado e as credênciais devem está de acordo com as do seu servidor mysql local, no caso dos tests locais. Coloque as credências num arquivo chamado `connection.json` na pasta database com as informações requeridas no módulo [config](./app/database/config.py), se não houver o arquivo, crie-o**.
 #### Customer
-###### Routes
+##### Routes
 This webservice is in development. So, there's just some Routes available for now and *it's Routes can be changed* in the future.
 Endpoints available:
 * `/auth` : Use to *login in API*. You have to get a token to access the other endpoints of this API. You can just use **GET** method to request the token by send a json into the body of request _sasic authentrication_ by parsing **user** and **password**.
@@ -133,13 +142,13 @@ Endpoints available:
 * `/recursos_campus/recurso_campus` : Use to **see**, **create** and **delete** a especific _recurso_campus_. You can use **GET**, **POST** and **DELETE** methods by parsing _id_tecnico_ as a query string.
 * `/recursos_campus` : Use to **see** the values into the table _recurso_campus_ recorded into the database. You can just use the **GET** method to access this route.
 
-###### Getting starter
+##### Getting starter
 First of all, considering usage in devoloping enviroment, you need to change the [database connections file](/app/database/connection.json) create a database run the script [create and import database](/create_import_db.py) 
 by run `python create_import_db.py`. That create a database structure and import some data
 test from csv files that there're into this repository. Then run the webserice by the command `python main_app.py` into this repository. 
 Is the file [main app](/main.py). Thus, it's ready to make request to the server. By default the route server **http://localhost:5000/api.paem** 
 
-###### Exemples
+##### Exemples
 You can access the webservice routes by adding the server adress and the route that you need to access.
 
 * Using browser to access to login.
@@ -211,4 +220,11 @@ text:  [
 Webservice PAEM Documentation will be here in the future.
 
 ## License
-Webservice license bill be here in the future.
+
+Copyright 2021 UFOPA-Projeto PAEM.
+
+Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements. See the NOTICE file distributed with this work for additional information regarding copyright ownership. The ASF licenses this file to you under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
