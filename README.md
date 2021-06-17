@@ -1,3 +1,7 @@
+english | [portuguese](./README_PT.md)
+
+
+
 - [Webservice PAEM](#webservice-paem)
   - [Setup](#setup)
     - [Prerequisites](#prerequisites)
