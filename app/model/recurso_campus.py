@@ -1,10 +1,10 @@
 from ..database import db
-from .base_model import PessoaModel
-from .campus import CampusModel
+from .base_model import BaseModel
+from .campus import BaseHasNameModel, CampusModel
 from datetime import time
 
 
-class RecursoCampusModel(PessoaModel, db.Model):
+class RecursoCampusModel(BaseHasNameModel, db.Model):
     __tablename__ = "recurso_campus"
 
     id_recurso_campus = db.Column(db.Integer, primary_key=True)
@@ -13,7 +13,8 @@ class RecursoCampusModel(PessoaModel, db.Model):
     descricao = db.Column(db.Text, nullable=False)
     __inicio_horario_funcionamento = db.Column('inicio_horario_funcionamento', db.Time, nullable=True)
     __fim_horario_funcionamento = db.Column('fim_nicio_horario_funcionamento', db.Time, nullable=True)
-    # quantidade_horas = db.Column(db.Integer, nullable=True) # nova coluna
+    quantidade_horas = db.Column(db.Integer, nullable=True)
+    
     campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=False)
     campus = db.relationship('CampusModel', backref=db.backref('recursos_campus', lazy=True))
     
@@ -24,8 +25,8 @@ class RecursoCampusModel(PessoaModel, db.Model):
             inicio_horario_funcionamento,
             fim_horario_funcionamento,
             campus_id_campus,
-            id_recurso_campus=None
-                                    ):
+            quantidade_horas=None,
+            id_recurso_campus=None):
         
         self.id_recurso_campus = id_recurso_campus
         self.nome = nome
@@ -33,6 +34,7 @@ class RecursoCampusModel(PessoaModel, db.Model):
         self.descricao = descricao
         self.inicio_horario_funciomaneto = inicio_horario_funcionamento
         self.fim_horario_funcionamento = fim_horario_funcionamento
+        self.quantidade_horas = quantidade_horas
         self.campus_id_campus = campus_id_campus
         
         
@@ -45,7 +47,9 @@ class RecursoCampusModel(PessoaModel, db.Model):
             'descricao':self.descricao,
             'inicio_horario_funcionamento':self.inicio_horario_funcionamento,
             'fim_horario_funcionamento':self.fim_horario_funcionamento,
-            'campus_id_campus':self.campus_id_campus
+            'quantidade_horas': self.quantidade_horas,
+            'campus_id_campus':self.campus_id_campus,
+            'campus': db.session.query(CampusModel.nome).filter_by(id_campus=self.campus_id_campus).first().nome # query name of campus
         }
     
     @property                    
@@ -81,6 +85,10 @@ class RecursoCampusModel(PessoaModel, db.Model):
             )
 
         self.__fim_horario_funcionamento = fim_horario_funcionamento
-        
+    
+    @classmethod
+    def query_all_names(cls):
+        super().query_all_names(cls.nome.label("nome"), cls.id_recurso_campus.label("id"))
+
     def __repr__(self):
         return '<recurso_campus %r>' % self.nome

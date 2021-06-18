@@ -10,11 +10,12 @@ import os
 
 app = Flask(__name__)
 
-
-
 # SQLAlchemy config
-# app.config['SQLALCHEMY_ECHO'] = True
+#see queries on terminal
+app.config['SQLALCHEMY_ECHO'] = True
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 __str_connection = "mysql://{username}:{password}@{server}/{database}?charset=utf8"
 
 app.config['SECRET_KEY'] = Config.SECRET_KEY

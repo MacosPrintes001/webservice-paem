@@ -57,3 +57,16 @@ class BaseController:
     def get_list(cls, Model):
         models = Model.query_all()
         return [model.serialize() for model in models]
+    
+class BaseHasNameController(BaseController):
+
+    @classmethod
+    def get_all_names(cls, Model):
+        
+        # models_names receve a tuple of (nome , id)
+        model_names = Model.query_all_names()
+
+        #create a dict with nome as key and id as a value
+        names_dict = {row.nome:row.id for row in model_names}
+        
+        return names_dict

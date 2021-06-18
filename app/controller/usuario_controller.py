@@ -1,7 +1,7 @@
 from ..model import UsuarioModel
-from .base_controller import BaseController
+from .base_controller import BaseHasNameController
 
-class UsuarioController(BaseController):
+class UsuarioController(BaseHasNameController):
 
     @classmethod
     def get(cls, id):
@@ -21,7 +21,7 @@ class UsuarioController(BaseController):
     
     @classmethod
     def get_list(cls):
-        return super().get_list(UsuarioModel)
+        return super().get_all_names(UsuarioModel)
     
     @classmethod
     def get_by_login(cls, login):

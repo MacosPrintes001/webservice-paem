@@ -1,10 +1,10 @@
 from ..database import db
-from .base_model import BaseModel
+from .base_model import BaseHasNameModel
 
 from passlib.apps import custom_app_context as pwd_context
 
 
-class UsuarioModel(BaseModel, db.Model):
+class UsuarioModel(BaseHasNameModel, db.Model):
     __tablename__='usuario'
 
     id_usuario = db.Column(db.Integer, primary_key=True)
@@ -43,6 +43,10 @@ class UsuarioModel(BaseModel, db.Model):
     @classmethod
     def find_by_login(cls, login):
        return cls.query.filter_by(login=login).first()
+
+    @classmethod
+    def query_all_names(cls):
+        return super().query_all_names(cls.login.label("nome"), cls.id_usuario.label("id"))
 
     def __repr__(self):
         return '<usuario %r>' % self.login

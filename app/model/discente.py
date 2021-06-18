@@ -1,9 +1,10 @@
 
+from .curso import CursoModel
 from .usuario import UsuarioModel
-from .base_model import PessoaModel 
+from .base_model import BaseHasNameModel 
 from ..database import db
 
-class DiscenteModel(PessoaModel, db.Model):
+class DiscenteModel(BaseHasNameModel, db.Model):
     __tablename__='discente'
 
     id_discente = db.Column(db.Integer, primary_key=True)
@@ -20,7 +21,7 @@ class DiscenteModel(PessoaModel, db.Model):
     # TODO: add status_alerta
 
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', uselist=False, backref=db.backref('discente', lazy='select'))
+    usuario = db.relationship('UsuarioModel', uselist=False, lazy='subquery')
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
     
@@ -53,6 +54,9 @@ class DiscenteModel(PessoaModel, db.Model):
 
 
     def serialize(self):
+
+        usuario_dict = self.usuario.serialize()
+
         return {
             'id_discente': self.id_discente, 
             'nome': self.nome,
@@ -64,8 +68,8 @@ class DiscenteModel(PessoaModel, db.Model):
             'grupo_risco':self.grupo_risco,
             'status_covid':self.status_covid,
             'status_permissao':self.status_permissao,
-            'usuario_id_usuario':self.usuario_id_usuario,
-            'curso':self.curso.serialize().get('nome')
+            'usuario': usuario_dict if usuario_dict else 'nenhum registro',
+            'curso': db.session.query(CursoModel.nome).filter_by(id_curso=self.curso_id_curso).first().nome
         }
     
     @classmethod
@@ -76,6 +80,10 @@ class DiscenteModel(PessoaModel, db.Model):
     def update_by_matricula(cls, matricula, dict):
        cls.query.filter_by(matricula=matricula).update(dict)
        cls.save()
-   
+
+    @classmethod
+    def query_all_names(cls):
+        super().query_all_names(cls.nome.label("nome"), cls.id_discente.label("id"))
+        
     def __repr__(self):
         return '<discente %r>' % self.login

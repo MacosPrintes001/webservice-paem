@@ -21,15 +21,15 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
       fone = db.Column(db.String(45), nullable=True)
 
       usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-      usuario = db.relationship('UsuarioModel', uselist=False, lazy='select', backref=db.backref('solicitacoes_acesso', lazy='select'))
+      usuario = db.relationship('UsuarioModel', uselist=False, lazy='noload')
 
       discente_id_discente = db.Column(db.Integer, db.ForeignKey('discente.id_discente'), nullable=True)
-      discente = db.relationship('DiscenteModel', uselist=False, lazy='select', backref=db.backref('solicitacoes_acesso', lazy='dynamic'))
+      discente = db.relationship('DiscenteModel', uselist=False, lazy='noload', backref=db.backref('solicitacoes_acesso', lazy='subquery'))
 
       # TODO: add visitante.
 
       recurso_campus_id_recurso_campus = db.Column(db.Integer, db.ForeignKey('recurso_campus.id_recurso_campus'), nullable=True)
-      recurso_campus = db.relationship('RecursoCampusModel', uselist=False, lazy='select', backref=db.backref('solicitacoes_acesso', lazy='dynamic'))
+      recurso_campus = db.relationship('RecursoCampusModel', uselist=False, lazy='noload')
       
       def __init__(self, 
                    para_si,
@@ -94,6 +94,13 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
           self.__hora_fim = hora_fim
 
       def serialize(self):
+
+          # Query just some rows
+          discente = db.session.query(DiscenteModel.matricula, 
+                                        DiscenteModel.nome).filter_by(id_discente=self.discente_id_discente).first()
+          
+          recurso_campus = db.session.query(RecursoCampusModel.nome).filter_by(id_recurso_campus=self.recurso_campus_id_recurso_campus).first()
+
           return {
               'id':self.id_solicitacao_acesso,
               'para_si':self.para_si,
@@ -103,11 +110,12 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
               'status_acesso':self.status_acesso,
               'nome':self.nome,
               'fone':self.fone,
-              'matricula':self.discente.serialize()['matricula'],
-              'nome_discente':self.discente.serialize()['nome'],
+              'matricula': discente.matricula,
+              'usuario_id_usuario': self.usuario_id_usuario,
               'discente_id_discente':self.discente_id_discente,
+              'discente': discente.nome,
               'recurso_campus_id_recurso_campus':self.recurso_campus_id_recurso_campus,
-              'recurso_campus':self.recurso_campus.serialize()
+              'recurso_campus': recurso_campus.nome,
           }
 
       @classmethod
