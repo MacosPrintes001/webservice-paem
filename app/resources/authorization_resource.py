@@ -33,14 +33,7 @@ class AuthorizationBotResource(Resource):
     ENDPOINT = 'auth.bot'
     ROUTE = '/auth.bot'
     
-    @http_auth.verify_password
-    def verify_credencials(cpf_login, password):
-        is_auth = Authorization.verify_user_by_cpf(cpf_login, password)
-        return is_auth
-    
-    @http_auth.login_required
-    def get(self):
-        login = http_auth.username()
-        print("usuario: ", login)
-        return Authorization.get_token(login)
+    @Authorization.cpf_required
+    def get(self, usuario):
+        return Authorization.get_token(usuario.login)
 

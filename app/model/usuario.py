@@ -11,7 +11,7 @@ class UsuarioModel(BaseHasNameModel, db.Model):
     login = db.Column(db.String(45), unique=True, nullable=False)
     cpf = db.Column(db.String(15), unique=True, nullable=True)
     _senha = db.Column('senha', db.Text, nullable=False)
-    email = db.Column(db.String(45), nullable=False)
+    email = db.Column(db.String(45), unique=True, nullable=False)
     tipo = db.Column(db.Integer, nullable=False)
 
     
@@ -49,7 +49,11 @@ class UsuarioModel(BaseHasNameModel, db.Model):
 
     @classmethod
     def find_by_cpf(cls, cpf):
-        return cls.query.filter_by(cpf=cpf)
+        return cls.query.filter_by(cpf=cpf).first()
+    
+    @classmethod
+    def find_by_email(cls, email):
+        return cls.query.filter_by(email=email).first()
 
     @classmethod
     def query_all_names(cls):

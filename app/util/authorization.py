@@ -1,3 +1,4 @@
+from collections import namedtuple
 from .http_status_code import BAD_REQUEST, UNAUTHORIZED_REQUEST
 from ..controller import UsuarioController
 
@@ -63,16 +64,19 @@ class Authorization():
         return {'token':token}
 
     @classmethod
-    def verify_user(cls, login, senha):
+    def verify_user(cls, login_email, senha):
 
-        if not (login and senha):
+        if not (login_email and senha):
             return False
         
-        usuario = UsuarioController.get_by_login(login)
+        usuario = UsuarioController.get_by_email(login_email)
+        print("usuario email:", usuario)
         
         if not usuario:
-            UsuarioController.get_by_email(login)
-        else: 
+            usuario = UsuarioController.get_by_login(login_email)
+            print("usuario login:", usuario)
+
+        if not usuario: 
             return False
 
         if not usuario.verify_password(senha):
@@ -80,20 +84,33 @@ class Authorization():
         
         return True
     
+    
     @classmethod
-    def verify_user_by_cpf(cls, cpf_login, senha):
+    def cpf_required(cls, f):
+        '''
+        Decorator to lock rote and 
+        just allow acces when send the valid token 
+        as header like '{Authorization:Bearer Token}'.
 
-        if not (cpf_login and senha):
-            return False
-        
-        usuario = UsuarioController.get_by_cpf(cpf_login)
-        
-        if not usuario:
-            UsuarioController.get_by_login(cpf_login)
-        else: 
-            return False
+        '''
+        @wraps(f)
+        def decorator(*args, **kwargs):
+                   
+            auth_key = 'Authorization'
+            if auth_key in request.headers:
+                cpf = request.headers[auth_key]
 
-        if not usuario.verify_password(senha):
-            return False
-        
-        return True
+            else:
+                return {'message':'acesso não autorizado.'}, UNAUTHORIZED_REQUEST
+
+            if not ("CPF" in cpf):
+                return {'message':'CPF invalido'}, BAD_REQUEST
+
+            usuario = UsuarioController.get_by_cpf(cpf)
+            
+            if not usuario:
+                return {'message':'Não existe usuário com este CPF'}, BAD_REQUEST
+                
+            return f(usuario=usuario, *args, **kwargs)
+    
+        return decorator
