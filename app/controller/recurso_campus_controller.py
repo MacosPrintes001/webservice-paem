@@ -1,8 +1,8 @@
-from .base_controller import BaseController
+from .base_controller import BaseHasNameController
 from ..model import RecursoCampusModel
 
 
-class RecursoCampusController(BaseController):
+class RecursoCampusController(BaseHasNameController):
     
     @classmethod
     def get(cls, id_recurso_campus):
@@ -22,4 +22,4 @@ class RecursoCampusController(BaseController):
 
     @classmethod
     def get_list(cls):
-        return super().get_list(RecursoCampusModel)
+        return super().get_all_names(RecursoCampusModel)

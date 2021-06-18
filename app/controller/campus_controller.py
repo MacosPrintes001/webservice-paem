@@ -1,18 +1,24 @@
+from .base_controller import BaseHasNameController
 from ..model import CampusModel
 
-class CampusController:
+class CampusController(BaseHasNameController):
     
-    def get(self):
-        pass
+    @classmethod
+    def get(cls, id):
+        return super().get_by_id(id, CampusModel)
 
-    def post(self):
-        pass
+    @classmethod
+    def post(cls, body):
+        return super().post(body, CampusModel)
 
-    def put(self):
-        pass
+    @classmethod
+    def put(cls, body):
+        return super().put(body, CampusModel)
 
-    def delete(self):
-        pass
+    @classmethod
+    def delete(cls, id):
+        return super().delete(id, CampusModel)
 
-    def get_list(self):
-        pass
+    @classmethod
+    def get_list(cls):
+        return super().get_all_names(CampusModel)

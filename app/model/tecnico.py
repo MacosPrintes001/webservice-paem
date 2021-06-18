@@ -1,11 +1,13 @@
 from ..database import db
 from .usuario import UsuarioModel
 from .campus import CampusModel
-from .base_model import BaseModel
+from .base_model import BaseHasNameModel
 from datetime import date
 
+from app.model import campus
 
-class TecnicoModel(BaseModel, db.Model):
+
+class TecnicoModel(BaseHasNameModel, db.Model):
     __tablename__ = "tecnico"
 
     id_tecnico = db.Column(db.Integer, primary_key=True)
@@ -17,21 +19,20 @@ class TecnicoModel(BaseModel, db.Model):
     status_afastamento = db.Column(db.SmallInteger, nullable=True)
 
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', lazy='select', uselist=False, backref=db.backref('tecnico', lazy='select'))
+    usuario = db.relationship('UsuarioModel', lazy='subquery', uselist=False)
 
     campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=True)
-    campus = db.relationship('CampusModel', lazy='select', backref=db.backref('tecnicos', lazy='select'))
+    campus = db.relationship('CampusModel', lazy='noload')
 
     def __init__(self, siape, 
             nome, 
             data_nascimento, 
             cargo,
+            campus_id_campus,
             status_covid=None, 
             status_afastamento=None, 
             usuario_id_usuario=None, 
-            campus_id_campus=None,
-            id_tecnico=None
-                                ):
+            id_tecnico=None):
         
         self.id_tecnico = id_tecnico
         self.siape = siape
@@ -40,7 +41,7 @@ class TecnicoModel(BaseModel, db.Model):
         self.cargo = cargo
         self.status_covid = status_covid
         self.status_afastamento = status_afastamento
-        self.curso_id_curso = campus_id_campus
+        self.campus_id_campus = campus_id_campus
         self.usuario_id_usuario = usuario_id_usuario
 
     @property
@@ -56,17 +57,35 @@ class TecnicoModel(BaseModel, db.Model):
           self.__data_nascimento = data
 
     def serialize(self):
-        return {
-            'id_tecnico':self.id_tecnico,
-            'siape':self.siape, 
-            'nome':self.nome, 
-            'data_nascimento':self.data_nascimento, 
-            "cargo":self.cargo,
-            'status_covid':self.status_covid, 
-            'status_afastamento':self.status_afastamento, 
-            'usuario_id_usuario':self.usuario_id_usuario, 
-            'campus_id_campus':self.campus_id_campus
-        }
+        try:
+            usuario_dict = self.usuario.serialize()
+        
+        except AttributeError as msg:
+            print("Warning: Usuário não cadatrado para este trécnico")
+            usuario_dict = None
+        
+        finally:
+            campus = db.session.query(
+                CampusModel.nome
+            ).filter_by(id_campus=self.campus_id_campus).first() # query name and get name from tuple
+            
+            return {
+                'id_tecnico':self.id_tecnico,
+                'siape':self.siape, 
+                'nome':self.nome, 
+                'data_nascimento':self.data_nascimento, 
+                "cargo":self.cargo,
+                'status_covid':self.status_covid, 
+                'status_afastamento':self.status_afastamento, 
+                'usuario_id_usuario':self.usuario_id_usuario,
+                'usuario': usuario_dict if usuario_dict else 'nenhum registro',
+                'campus_id_campus':self.campus_id_campus,
+                'campus': campus.nome if campus else "Nenhum campus no cadastro."
+            }
+
+    @classmethod
+    def query_all_names(cls):
+        return super().query_all_names(cls.nome.label("nome"), cls.id_tecnico.label("id"))
     
     def __repr__(self):
         return '<tecnico %r>' % self.nome

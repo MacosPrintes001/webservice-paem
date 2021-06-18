@@ -1,5 +1,4 @@
 from ..database import db
-from .discente import DiscenteModel
 
 
 db.Table(
@@ -13,12 +12,40 @@ class DisciplinaModel(db.Model):
     __tablename__='disciplina'
 
     id_disciplina = db.Column(db.Integer, primary_key=True)
-    codigo_sigaa = db.Column(db.String(45), nullable=True)
+    nome = db.Column(db.String(45), nullable=False)
+    codigo_sigaa = db.Column(db.String(45), nullable=False)
     semestre = db.Column(db.Integer, nullable=True)
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
 
-    discentes = db.relationship('DiscenteModel', secondary='disciplina_has_discente',  backref=db.backref('disciplinas', lazy=True))
+    discentes = db.relationship('DiscenteModel', secondary='disciplina_has_discente', lazy='subquery', backref=db.backref('disciplinas', lazy=True))
+
+    def __init__(self, nome, codigo_sigaa, semestre=None, id_disciplina=None):
+        self.id_disciplina = id_disciplina
+        self.nome = nome
+        self.codigo_sigaa = codigo_sigaa
+        self.semestre = semestre
+
+    def serialize(self):
+
+        try:
+            discentes_dict = self.discentes.seriaize()
+        except AttributeError as msg:
+            print("Nenhum discente registrado nessa disciplina.")
+            discentes_dict = None
+        
+        finally:
+            return {
+                "id_disciplina":self.id_disciplina,
+                "nome":self.nome,
+                "codigo_sigaa":self.codigo_sigaa,
+                "semestre":self.semestre,
+                'discentes': discentes_dict if discentes_dict else 'nenhum registro' 
+            }
+
+    @classmethod
+    def query_all_names(cls):
+        return super().query_all_names(cls.nome, cls.id_tecnico)
 
     def __repr__(self):
         return '<disciplina %r>' % self.login

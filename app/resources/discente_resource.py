@@ -1,4 +1,5 @@
 from ..controller import DiscenteController
+from ..util.authorization import Authorization
 
 from flask_restful import Resource, reqparse, request
 class DiscenteResource(Resource):
@@ -6,7 +7,7 @@ class DiscenteResource(Resource):
     ENDPOINT = 'discente'
     ROUTE = '/discentes/discente'
     
-    # @token_required
+    @Authorization.token_required
     def get(self):
 
         parser = reqparse.RequestParser()
@@ -26,17 +27,17 @@ class DiscenteResource(Resource):
 
         return {"massage":"Required query string matricula or id_discente."}
 
-    # @token_required
+    @Authorization.token_required
     def post(self):
         body = request.json
         return DiscenteController.post(body)
       
-    # @token_required
+    @Authorization.token_required
     def put(self):
         body = request.json
         return DiscenteController.put(body)
 
-    # @token_required
+    @Authorization.token_required
     def delete(self):
 
         parser = reqparse.RequestParser()
@@ -53,6 +54,6 @@ class ListaDiscenteResource(Resource):
       ENDPOINT = 'discentes'
       ROUTE = '/discentes'
 
-      # @token_required
+      @Authorization.token_required
       def get(self):
           return DiscenteController.list()

@@ -2,6 +2,7 @@
 from ..database import db
 from .base_model import BaseModel
 from .usuario import UsuarioModel
+from .acesso_permitido import AcessoPermitidoModel
 from .discente import DiscenteModel
 from .recurso_campus import RecursoCampusModel
 
@@ -21,16 +22,18 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
       fone = db.Column(db.String(45), nullable=True)
 
       usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-      usuario = db.relationship('UsuarioModel', uselist=False, lazy='select', backref=db.backref('solicitacoes_acesso', lazy='select'))
+      usuario = db.relationship('UsuarioModel', uselist=False, lazy='noload')
 
       discente_id_discente = db.Column(db.Integer, db.ForeignKey('discente.id_discente'), nullable=True)
-      discente = db.relationship('DiscenteModel', uselist=False, lazy='select', backref=db.backref('solicitacoes_acesso', lazy='dynamic'))
+      discente = db.relationship('DiscenteModel', uselist=False, lazy='noload', backref=db.backref('solicitacoes_acesso', lazy='subquery'))
 
       # TODO: add visitante.
 
       recurso_campus_id_recurso_campus = db.Column(db.Integer, db.ForeignKey('recurso_campus.id_recurso_campus'), nullable=True)
-      recurso_campus = db.relationship('RecursoCampusModel', uselist=False, lazy='select', backref=db.backref('solicitacoes_acesso', lazy='dynamic'))
+      recurso_campus = db.relationship('RecursoCampusModel', uselist=False, lazy='noload')
       
+      acesso_permitido = db.relationship('AcessoPermitidoModel', uselist=False, lazy='subquery')
+
       def __init__(self, 
                    para_si,
                    data,
@@ -94,25 +97,45 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
           self.__hora_fim = hora_fim
 
       def serialize(self):
-          return {
-              'id':self.id_solicitacao_acesso,
-              'para_si':self.para_si,
-              'data':self.data,
-              'hora_inicio':self.hora_inicio,
-              'hora_fim':self.hora_fim,
-              'status_acesso':self.status_acesso,
-              'nome':self.nome,
-              'fone':self.fone,
-              'matricula':self.discente.serialize()['matricula'],
-              'nome_discente':self.discente.serialize()['nome'],
-              'discente_id_discente':self.discente_id_discente,
-              'recurso_campus_id_recurso_campus':self.recurso_campus_id_recurso_campus,
-              'recurso_campus':self.recurso_campus.serialize()
-          }
+
+          try:
+              acesso_permitido_dict = self.acesso_permitido.serialize()
+          except AttributeError as msg:
+              print("warning: nenhum acesso permitido registrado.")
+              acesso_permitido_dict = None        
+          
+          finally:
+            # Query just some rows
+            discente = db.session.query(
+                DiscenteModel.matricula, 
+                DiscenteModel.nome
+            ).filter_by(id_discente=self.discente_id_discente).first()
+            
+            recurso_campus = db.session.query(
+                RecursoCampusModel.nome
+            ).filter_by(id_recurso_campus=self.recurso_campus_id_recurso_campus).first()
+            
+            return {
+                'id':self.id_solicitacao_acesso,
+                'para_si':self.para_si,
+                'data':self.data,
+                'hora_inicio':self.hora_inicio,
+                'hora_fim':self.hora_fim,
+                'status_acesso':self.status_acesso,
+                'nome':self.nome,
+                'fone':self.fone,
+                'matricula': discente.matricula,
+                'usuario_id_usuario': self.usuario_id_usuario,
+                'discente_id_discente':self.discente_id_discente,
+                'discente': discente.nome if discente else "nenhum discente",
+                'recurso_campus_id_recurso_campus':self.recurso_campus_id_recurso_campus,
+                'recurso_campus': recurso_campus.nome if recurso_campus else "nenhum recurso",
+                'acesso_permitido': acesso_permitido_dict if acesso_permitido_dict else "Nenhum registro de acesso"
+            }
 
       @classmethod
       def find_by_id_discente(cls, id_discente):
-        solicitacao_acesso = cls.query.filter_by(discente_id_discente=id_discente).first_or_404("Not found this resource.")
+        solicitacao_acesso = cls.query.filter_by(discente_id_discente=id_discente).first()
         return solicitacao_acesso.serialize()
 
       def __repr__(self):

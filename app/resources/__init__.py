@@ -1,5 +1,5 @@
 from ..controller import app
-from .authorization_resource import AuthorizationResource
+from .authorization_resource import AuthorizationResource, AuthorizationBotResource
 from .usuario_resource import UsuarioResource, ListaUsuarioResource
 from .docente_resource import DocenteResource, ListaDocenteResource
 from .discente_resource import DiscenteResource, ListaDiscenteResource

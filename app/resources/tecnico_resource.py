@@ -1,4 +1,6 @@
 from ..controller import TecnicoController
+from ..util.authorization import Authorization
+
 from flask_restful import Resource, reqparse, request
 
 class TecnicoResource(Resource):
@@ -6,6 +8,7 @@ class TecnicoResource(Resource):
     ENDPOINT = 'tecnico'
     ROUTE = '/tecnicos/tecnico'
 
+    # @Authorization.token_required
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('id_tecnico', type=int, required=True, help="Required query string id_tecnico.")
@@ -15,14 +18,17 @@ class TecnicoResource(Resource):
 
         return TecnicoController.get(id_tecnico)
     
+    @Authorization.token_required
     def post(self):
         body = request.json
         return TecnicoController.post(body)
     
+    @Authorization.token_required
     def put(self):
         body = request.json
         return TecnicoController.put(body)
     
+    @Authorization.token_required
     def delete(self):
         
         parser = reqparse.RequestParser()
@@ -38,5 +44,6 @@ class ListaTecnicoResource(Resource):
     ENDPOINT = 'tenicos'
     ROUTE = '/tecnicos'
     
+    @Authorization.token_required
     def get(self):
         return TecnicoController.get_list()

@@ -1,8 +1,5 @@
 from ..database import db
-from .campus import CampusModel
 from .disciplina import DisciplinaModel
-from .discente import DiscenteModel
-from .docente import DocenteModel
 
 
 class CursoModel(db.Model):
@@ -13,7 +10,6 @@ class CursoModel(db.Model):
     data_fundacao = db.Column(db.Date, nullable=True)
     
     campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=False)
-    campus = db.relationship('CampusModel', lazy='select', uselist=False, backref=db.backref('cursos', lazy='select'))
     
     docentes = db.relationship('DocenteModel', backref=db.backref('curso', uselist=False, lazy='select'))
     
@@ -31,7 +27,7 @@ class CursoModel(db.Model):
         return{
             'id_curso':self.id_curso,
             'nome':self.nome,
-            'data_fundacao':self.data_fundacao
+            'data_fundacao':self.data_fundacao,
         }
 
     def __repr__(self):

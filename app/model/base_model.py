@@ -39,13 +39,20 @@ class BaseModel():
         db.session.commit()
 
 # class to working on person atributes 
-class PessoaModel(BaseModel):
+class BaseHasNameModel(BaseModel):
+    '''
+        Base model for tbles that has a name column
+    '''
+    # @classmethod
+    # def find_by_name(cls, nome):
+    #    return cls.query.filter_by(nome=nome).first()
+
+    # @classmethod
+    # def update_by_name(cls, nome, dict):
+    #    cls.query.filter_by(nome=nome).update(dict)
+    #    cls.save()
 
     @classmethod
-    def find_by_name(cls, nome):
-       return cls.query.filter_by(nome=nome).first()
-
-    @classmethod
-    def update_by_name(cls, nome, dict):
-       cls.query.filter_by(nome=nome).update(dict)
-       cls.save()
+    def query_all_names(*entiries):
+        return list(db.session.query(*entiries).all())
+    

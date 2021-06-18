@@ -1,4 +1,4 @@
-from .resources import AuthorizationResource
+from .resources import AuthorizationResource, AuthorizationBotResource
 from .resources import UsuarioResource, ListaUsuarioResource
 from .resources import DocenteResource, ListaDocenteResource
 from .resources import DiscenteResource, ListaDiscenteResource

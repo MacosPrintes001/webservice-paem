@@ -1,7 +1,7 @@
 from ..model import TecnicoModel
-from .base_controller import BaseController
+from .base_controller import BaseHasNameController
 
-class TecnicoController(BaseController):
+class TecnicoController(BaseHasNameController):
     
     @classmethod
     def get(cls, id_tecnico):
@@ -21,4 +21,4 @@ class TecnicoController(BaseController):
 
     @classmethod
     def get_list(cls):
-        return super().get_list(TecnicoModel)
+        return super().get_all_names(TecnicoModel)
