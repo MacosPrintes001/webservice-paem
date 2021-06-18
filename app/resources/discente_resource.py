@@ -7,7 +7,7 @@ class DiscenteResource(Resource):
     ENDPOINT = 'discente'
     ROUTE = '/discentes/discente'
     
-    # @token_required
+    @Authorization.token_required
     def get(self):
 
         parser = reqparse.RequestParser()

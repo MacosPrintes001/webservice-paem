@@ -45,6 +45,6 @@ class ListaCampusResource(Resource):
     ENDPOINT = 'campus'
     ROUTE = '/campus'
     
-    # @Authorization.token_required
+    @Authorization.token_required
     def get(self):
         return CampusController.get_list()
