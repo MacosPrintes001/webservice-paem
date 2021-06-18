@@ -56,7 +56,8 @@ class BaseController:
     @classmethod
     def get_list(cls, Model):
         models = Model.query_all()
-        return [model.serialize() for model in models]
+        serialized = [model.serialize() for model in models]
+        return serialized
     
 class BaseHasNameController(BaseController):
 

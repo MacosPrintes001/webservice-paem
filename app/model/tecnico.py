@@ -57,22 +57,31 @@ class TecnicoModel(BaseHasNameModel, db.Model):
           self.__data_nascimento = data
 
     def serialize(self):
-        # usuario_dict = self.usuario.serialize()
-        usuario_dict = None
-
-        return {
-            'id_tecnico':self.id_tecnico,
-            'siape':self.siape, 
-            'nome':self.nome, 
-            'data_nascimento':self.data_nascimento, 
-            "cargo":self.cargo,
-            'status_covid':self.status_covid, 
-            'status_afastamento':self.status_afastamento, 
-            'usuario_id_usuario':self.usuario_id_usuario,
-            'usuario': usuario_dict if usuario_dict else 'nenhum registro',
-            'campus_id_campus':self.campus_id_campus,
-            'campus': db.session.query(CampusModel.nome).filter_by(id_campus=self.campus_id_campus).first().nome # query name and get name from tuple
-        }
+        try:
+            usuario_dict = self.usuario.serialize()
+        
+        except AttributeError as msg:
+            print("Warning: Usuário não cadatrado para este trécnico")
+            usuario_dict = None
+        
+        finally:
+            campus = db.session.query(
+                CampusModel.nome
+            ).filter_by(id_campus=self.campus_id_campus).first() # query name and get name from tuple
+            
+            return {
+                'id_tecnico':self.id_tecnico,
+                'siape':self.siape, 
+                'nome':self.nome, 
+                'data_nascimento':self.data_nascimento, 
+                "cargo":self.cargo,
+                'status_covid':self.status_covid, 
+                'status_afastamento':self.status_afastamento, 
+                'usuario_id_usuario':self.usuario_id_usuario,
+                'usuario': usuario_dict if usuario_dict else 'nenhum registro',
+                'campus_id_campus':self.campus_id_campus,
+                'campus': campus.nome if campus else "Nenhum campus no cadastro."
+            }
 
     @classmethod
     def query_all_names(cls):

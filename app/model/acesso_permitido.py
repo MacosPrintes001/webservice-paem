@@ -1,6 +1,5 @@
 from ..database import db
 from .base_model import BaseModel
-from .solicitacao_acesso import SolicitacaoAcessoModel
 
 from datetime import time
 
@@ -14,7 +13,6 @@ class AcessoPermitidoModel(BaseModel, db.Model):
       __hora_saida = db.Column('hora_saida', db.Time, nullable=True)
     
       solicitacao_acesso_id_solicitacao_acesso = db.Column(db.Integer, db.ForeignKey('solicitacao_acesso.id_solicitacao_acesso'), nullable=True)
-      solicita_acesso = db.relationship('SolicitacaoAcessoModel', uselist=False, lazy='select', backref=db.backref('acesso_permitido', lazy='select', uselist=False))
     
       def __init__(self,
                     temperatura,

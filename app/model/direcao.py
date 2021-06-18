@@ -42,12 +42,15 @@ class DirecaoModel(db.Model):
             self.__data_saida = data
 
     def serialize(self):
+        docente = db.session.query(
+            DocenteModel.nome
+        ).filter_by(id_docente=self.docente_id_docente).first()
         return {
             "id_direcao": self.id_direcao,
             "data_entrada": self.data_entrada,
             "data_saida": self.data_saida,
             "status": self.status_ativo,
-            "docente": db.session.query(DocenteModel.nome).filter_by(id_docente=self.docente_id_docente).first().nome,
+            "docente": docente.nome if docente else "nenhum docente"
         }
 
     def __repr__(self):

@@ -28,15 +28,20 @@ class DisciplinaModel(db.Model):
 
     def serialize(self):
 
-        discentes_dict = self.discentes.seriaize()
-
-        return {
-            "id_disciplina":self.id_disciplina,
-            "nome":self.nome,
-            "codigo_sigaa":self.codigo_sigaa,
-            "semestre":self.semestre,
-            'discentes': discentes_dict if discentes_dict else 'nenhum registro' 
-        }
+        try:
+            discentes_dict = self.discentes.seriaize()
+        except AttributeError as msg:
+            print("Nenhum discente registrado nessa disciplina.")
+            discentes_dict = None
+        
+        finally:
+            return {
+                "id_disciplina":self.id_disciplina,
+                "nome":self.nome,
+                "codigo_sigaa":self.codigo_sigaa,
+                "semestre":self.semestre,
+                'discentes': discentes_dict if discentes_dict else 'nenhum registro' 
+            }
 
     @classmethod
     def query_all_names(cls):

@@ -9,7 +9,6 @@ class PortariaModel(BaseHasNameModel, db.Model):
 
     id_portaria = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(45), nullable=False)
-    cpf = db.Column(db.String(15), nullable=False)
     data_nascimento = db.Column(db.Date, nullable=True)
     funcao = db.Column(db.String(45), nullable=True)
     turno_trabalho = db.Column(db.SmallInteger, nullable=False)
@@ -22,7 +21,6 @@ class PortariaModel(BaseHasNameModel, db.Model):
 
     def __init__(self, 
             nome, 
-            cpf, 
             data_nascimento, 
             funcao, 
             turno_trabalho,
@@ -31,7 +29,6 @@ class PortariaModel(BaseHasNameModel, db.Model):
             id_portaria=None):
         
         self.nome = nome
-        self.cpf = cpf
         self.data_nascimento = data_nascimento
         self.funcao = funcao
         self.turno_trabalho = turno_trabalho
@@ -41,20 +38,28 @@ class PortariaModel(BaseHasNameModel, db.Model):
 
     def serialize(self):
 
-        usuario_dict = self.usuario.serialize()
+        try:
+            usuario_dict = self.usuario.serialize()
+        except AttributeError as msg:
+            print("Usuário não cadastrado.")
+            usuario_dict = None
 
-        return {
-            "nome": self.nome,
-            "cpf":self.cpf,
-            "data_nascimento": self.data_nascimento,
-            "funcao": self.funcao,
-            "turno_trabalho": self.turno_trabalho,
-            "usuario_id_usuario": self.usuario_id_usuario,
-            "usuario": usuario_dict if usuario_dict else 'nenhum registro',
-            "curso_id_curso": self.curso_id_curso,
-            "curso": db.session.query(CursoModel.nome).filter_by(id_curso=self.curso_id_curso).first().nome,
-            "id_portaria": self.id_portaria
-        }
+        finally:
+            curso = db.session.query(
+                CursoModel.nome
+            ).filter_by(id_curso=self.curso_id_curso).first()
+            
+            return {
+                "nome": self.nome,
+                "data_nascimento": self.data_nascimento,
+                "funcao": self.funcao,
+                "turno_trabalho": self.turno_trabalho,
+                "usuario_id_usuario": self.usuario_id_usuario,
+                "usuario": usuario_dict if usuario_dict else 'nenhum registro',
+                "curso_id_curso": self.curso_id_curso,
+                "curso": curso.nome if curso else "nenhum curso",
+                "id_portaria": self.id_portaria
+            }
     
     @classmethod
     def query_all_names(cls):

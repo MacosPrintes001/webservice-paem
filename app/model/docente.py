@@ -27,7 +27,7 @@ class DocenteModel(BaseHasNameModel, db.Model):
                                                         backref=db.backref('docentes', lazy=True))
     
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', uselist=False, lazy='noload', backref=db.backref('docente', lazy='noload'))
+    usuario = db.relationship('UsuarioModel', uselist=False, lazy='noload')
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
     
@@ -40,7 +40,8 @@ class DocenteModel(BaseHasNameModel, db.Model):
                         situacao=None, 
                         usuario_id_usuario=None, 
                         curso_id_curso=None,
-                        id_docente=None ):
+                        id_docente=None,
+                        usuario=None ):
 
         self.id_docente = id_docente
         self.siape = siape
@@ -52,6 +53,7 @@ class DocenteModel(BaseHasNameModel, db.Model):
         self.situacao = situacao
         self.usuario_id_usuario = usuario_id_usuario
         self.curso_id_curso = curso_id_curso
+        self.usuario = usuario
     
     @property
     def data_nascimento(self):
@@ -68,21 +70,30 @@ class DocenteModel(BaseHasNameModel, db.Model):
 
     def serialize(self):
 
-        usuario_dict = self.usuario.serialize()
-
-        return {
-            "id_docente":self.id_docente,
-            "siape":self.siape,
-            "nome":self.nome,
-            "data_nascimento":self.data_nascimento,
-            "status_covid":self.status_covid,
-            "status_afastamento":self.status_afastamento,
-            "situacao":self.situacao,
-            "usuario_id_usuario":self.usuario_id_usuario,
-            "usuario": usuario_dict if usuario_dict else 'nenhum registro',
-            "curso_id_curso":self.curso_id_curso,
-            "curso": db.session.query(CursoModel.nome).filter_by(id_curso=self.curso_id_curso).first().nome
-        }
+        try:    
+            usuario_dict = self.usuario.serialize()
+        
+        except AttributeError as msg:
+            print("usuario não cadastrado.")
+            usuario_dict = None
+        finally:
+            curso = db.session.query(
+                CursoModel.nome
+            ).filter_by(id_curso=self.curso_id_curso).first()
+            
+            return {
+                "id_docente":self.id_docente,
+                "siape":self.siape,
+                "nome":self.nome,
+                "data_nascimento":self.data_nascimento,
+                "status_covid":self.status_covid,
+                "status_afastamento":self.status_afastamento,
+                "situacao":self.situacao,
+                "usuario_id_usuario":self.usuario_id_usuario,
+                "usuario": usuario_dict if usuario_dict else 'nenhum registro',
+                "curso_id_curso":self.curso_id_curso,
+                "curso": curso.nome if curso else "nenhum curso"
+            }
     
     @classmethod
     def query_all_names(cls):

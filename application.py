@@ -1,5 +1,6 @@
+
 from app import api
-from app import AuthorizationResource
+from app import AuthorizationResource, AuthorizationBotResource
 from app import UsuarioResource, ListaUsuarioResource
 from app import DocenteResource, ListaDocenteResource
 from app import DiscenteResource, ListaDiscenteResource
@@ -23,6 +24,7 @@ def adicionar_recurso(Recurso):
 adicionar_recurso(HomeResource)
     # Login and get token
 adicionar_recurso(AuthorizationResource)
+adicionar_recurso(AuthorizationBotResource)
 
 adicionar_recurso(UsuarioResource)
 adicionar_recurso(ListaUsuarioResource)

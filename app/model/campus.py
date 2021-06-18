@@ -40,16 +40,20 @@ class CampusModel(BaseHasNameModel, db.Model):
 
 
     def serialize(self):
-
-        docente_dict = self.direcao.docente.serialize()
-
-        return {
-            "nome":self.nome,
-            "ano_fundacao":self.ano_fundacao,
-            "id_campus":self.id_campus,
-            'direcao_id_direcao': self.direcao_id_direcao,
-            "direcao": docente_dict if docente_dict else 'nenhum registro' 
-        }
+        
+        try:
+            docente_dict = self.direcao.docente.serialize()
+        except AttributeError as msg:
+            print("warning: nenhum docente na direção cadastrado neste campus.")
+            docente_dict = None
+        finally:
+            return {
+                "nome":self.nome,
+                "ano_fundacao":self.ano_fundacao,
+                "id_campus":self.id_campus,
+                'direcao_id_direcao': self.direcao_id_direcao,
+                "direcao": docente_dict if docente_dict else 'nenhum registro' 
+            }
 
     @classmethod
     def query_all_names(cls):

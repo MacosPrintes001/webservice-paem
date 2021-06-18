@@ -3,6 +3,7 @@ from .curso import CursoModel
 from .usuario import UsuarioModel
 from .base_model import BaseHasNameModel 
 from ..database import db
+from app.model import usuario
 
 class DiscenteModel(BaseHasNameModel, db.Model):
     __tablename__='discente'
@@ -10,7 +11,6 @@ class DiscenteModel(BaseHasNameModel, db.Model):
     id_discente = db.Column(db.Integer, primary_key=True)
     matricula = db.Column(db.String(45), unique=True, nullable=False)
     nome = db.Column(db.String(45), nullable=False)
-    cpf = db.Column(db.String(15), unique=True, nullable=True)
     entrada = db.Column(db.String(6), nullable=True)
     semestre = db.Column(db.Integer, nullable=True)
     endereco = db.Column(db.String(45), nullable=True)
@@ -28,7 +28,6 @@ class DiscenteModel(BaseHasNameModel, db.Model):
     def __init__(self, matricula, 
                         nome, 
                         curso_id_curso, 
-                        cpf=None, 
                         entrada=None, 
                         semestre=None, 
                         endereco=None, 
@@ -36,13 +35,13 @@ class DiscenteModel(BaseHasNameModel, db.Model):
                         status_covid=None, 
                         status_permissao=None, 
                         usuario_id_usuario=None,
-                        id_discente=None
+                        id_discente=None, 
+                        usuario=None
                         ):
 
         self.id_discente = id_discente
         self.matricula = matricula
         self.nome = nome
-        self.cpf = cpf
         self.entrada = entrada
         self.semestre = semestre
         self.endereco = endereco
@@ -52,25 +51,36 @@ class DiscenteModel(BaseHasNameModel, db.Model):
         self.usuario_id_usuario = usuario_id_usuario
         self.curso_id_curso = curso_id_curso
 
+        self.usuario = usuario
+
 
     def serialize(self):
 
-        usuario_dict = self.usuario.serialize()
+        try:
+            usuario_dict = self.usuario.serialize()
+        except AttributeError as msg:
+            print("usuário não cadastrado")
+            usuario_dict = None
+        
+        finally:
 
-        return {
-            'id_discente': self.id_discente, 
-            'nome': self.nome,
-            'matricula': self.matricula,
-            'cpf':self.cpf,
-            'entrada':self.entrada,
-            'semestre':self.semestre,
-            'endereco':self.endereco,
-            'grupo_risco':self.grupo_risco,
-            'status_covid':self.status_covid,
-            'status_permissao':self.status_permissao,
-            'usuario': usuario_dict if usuario_dict else 'nenhum registro',
-            'curso': db.session.query(CursoModel.nome).filter_by(id_curso=self.curso_id_curso).first().nome
-        }
+            curso = db.session.query(
+                CursoModel.nome
+            ).filter_by(id_curso=self.curso_id_curso).first()
+            
+            return {
+                'id_discente': self.id_discente, 
+                'nome': self.nome,
+                'matricula': self.matricula,
+                'entrada':self.entrada,
+                'semestre':self.semestre,
+                'endereco':self.endereco,
+                'grupo_risco':self.grupo_risco,
+                'status_covid':self.status_covid,
+                'status_permissao':self.status_permissao,
+                'usuario': usuario_dict if usuario_dict else 'nenhum registro',
+                'curso': curso.nome if curso else "nenhum curso"
+            }
     
     @classmethod
     def find_by_matricula(cls, matricula):
@@ -83,7 +93,7 @@ class DiscenteModel(BaseHasNameModel, db.Model):
 
     @classmethod
     def query_all_names(cls):
-        super().query_all_names(cls.nome.label("nome"), cls.id_discente.label("id"))
-        
+        return super().query_all_names(cls.nome.label("nome"), cls.id_discente.label("id"))
+    
     def __repr__(self):
         return '<discente %r>' % self.login

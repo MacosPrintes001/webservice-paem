@@ -9,14 +9,16 @@ class UsuarioModel(BaseHasNameModel, db.Model):
 
     id_usuario = db.Column(db.Integer, primary_key=True)
     login = db.Column(db.String(45), unique=True, nullable=False)
+    cpf = db.Column(db.String(15), unique=True, nullable=True)
     _senha = db.Column('senha', db.Text, nullable=False)
     email = db.Column(db.String(45), nullable=False)
     tipo = db.Column(db.Integer, nullable=False)
 
     
-    def __init__(self, login, senha, email, tipo, id_usuario=None):
+    def __init__(self, login, senha, email, cpf, tipo, id_usuario=None):
         self.login = login
         self.email = email
+        self.cpf = cpf
         self.tipo = tipo
         self.senha = senha
         self.id_usuario = id_usuario
@@ -36,6 +38,7 @@ class UsuarioModel(BaseHasNameModel, db.Model):
     def serialize(self):
         return {'id_usuario': self.id_usuario, 
                 'login': self.login,
+                'cpf': self.cpf,
                 'email':self.email,
                 'tipo':self.tipo,
         }
@@ -43,6 +46,10 @@ class UsuarioModel(BaseHasNameModel, db.Model):
     @classmethod
     def find_by_login(cls, login):
        return cls.query.filter_by(login=login).first()
+
+    @classmethod
+    def find_by_cpf(cls, cpf):
+        return cls.query.filter_by(cpf=cpf)
 
     @classmethod
     def query_all_names(cls):

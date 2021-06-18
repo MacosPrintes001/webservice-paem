@@ -26,3 +26,7 @@ class UsuarioController(BaseHasNameController):
     @classmethod
     def get_by_login(cls, login):
         return UsuarioModel.find_by_login(login)
+    
+    @classmethod
+    def get_by_cpf(cls, cpf):
+        return UsuarioModel.find_by_cpf(cpf)

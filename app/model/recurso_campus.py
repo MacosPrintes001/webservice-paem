@@ -40,6 +40,11 @@ class RecursoCampusModel(BaseHasNameModel, db.Model):
         
 
     def serialize(self):
+
+        campus = db.session.query(
+            CampusModel.nome
+        ).filter_by(id_campus=self.campus_id_campus).first() # query name of campus
+        
         return {
             'id_recuso_campus': self.id_recurso_campus, 
             'nome': self.nome,
@@ -49,7 +54,7 @@ class RecursoCampusModel(BaseHasNameModel, db.Model):
             'fim_horario_funcionamento':self.fim_horario_funcionamento,
             'quantidade_horas': self.quantidade_horas,
             'campus_id_campus':self.campus_id_campus,
-            'campus': db.session.query(CampusModel.nome).filter_by(id_campus=self.campus_id_campus).first().nome # query name of campus
+            'campus': campus.nome if campus else "Nenhum campi"
         }
     
     @property                    
