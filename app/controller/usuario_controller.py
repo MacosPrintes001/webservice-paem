@@ -1,7 +1,19 @@
 from ..model import UsuarioModel
 from .base_controller import BaseHasNameController
+from ..util.http_status_code import BAD_REQUEST
 
 class UsuarioController(BaseHasNameController):
+
+    @classmethod
+    def create_usuario(cls, usuario_dict):
+        
+        try:
+            usuario = UsuarioModel(**usuario_dict)
+            return usuario
+
+        except TypeError as msg:
+            print("error ao tentar criar um usuário")
+            return None
 
     @classmethod
     def get(cls, id):
@@ -20,7 +32,7 @@ class UsuarioController(BaseHasNameController):
         return super().delete(id, UsuarioModel)
     
     @classmethod
-    def get_list(cls):
+    def get_all_names(cls):
         return super().get_all_names(UsuarioModel)
     
     @classmethod

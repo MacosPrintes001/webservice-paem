@@ -1,4 +1,4 @@
-from ..controller import TecnicoController
+from ..controller import TecnicoController, UsuarioController
 from ..util.authorization import Authorization
 
 from flask_restful import Resource, reqparse, request
@@ -20,8 +20,12 @@ class TecnicoResource(Resource):
     
     @Authorization.token_required
     def post(self):
-        body = request.json
-        return TecnicoController.post(body)
+
+        tecnico_body = request.json.get("tecnico")
+        usuario_body = request.json.get("usuario")
+        usuario = UsuarioController.create_usuario(usuario_body)
+
+        return TecnicoController.post(tecnico_body, usuario)
     
     @Authorization.token_required
     def put(self):
@@ -46,4 +50,4 @@ class ListaTecnicoResource(Resource):
     
     @Authorization.token_required
     def get(self):
-        return TecnicoController.get_list()
+        return TecnicoController.get_all_names()

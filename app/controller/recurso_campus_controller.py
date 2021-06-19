@@ -21,5 +21,5 @@ class RecursoCampusController(BaseHasNameController):
         return super().delete(id_recurso_campus, RecursoCampusModel)
 
     @classmethod
-    def get_list(cls):
+    def get_all_names(cls):
         return super().get_all_names(RecursoCampusModel)

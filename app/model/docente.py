@@ -2,6 +2,7 @@ from ..database import db
 from .curso import CursoModel
 from .disciplina import DisciplinaModel
 from .usuario import UsuarioModel
+from .campus import CampusModel
 from .base_model import BaseHasNameModel
 from datetime import date
 
@@ -23,37 +24,16 @@ class DocenteModel(BaseHasNameModel, db.Model):
     escolaridade = db.Column(db.String(45), nullable=True)
     situacao = db.Column(db.String(45), nullable=True)
 
-    disciplina = db.relationship('DisciplinaModel', secondary='docente_has_disciplina', lazy='subquery',
+    disciplinas = db.relationship('DisciplinaModel', secondary='docente_has_disciplina', lazy='select',
                                                         backref=db.backref('docentes', lazy=True))
     
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', uselist=False, lazy='noload')
+    usuario = db.relationship('UsuarioModel', uselist=False, lazy='select')
+
+    campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=True)
+    campus = db.relationship('CampusModel', uselist=False, lazy='select')
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
-    
-    def __init__(self, siape, 
-                        nome, 
-                        data_nascimento, 
-                        escolaridade, 
-                        status_covid=None, 
-                        status_afastamento=None, 
-                        situacao=None, 
-                        usuario_id_usuario=None, 
-                        curso_id_curso=None,
-                        id_docente=None,
-                        usuario=None ):
-
-        self.id_docente = id_docente
-        self.siape = siape
-        self.nome = nome
-        self.escolaridade = escolaridade
-        self.data_nascimento = data_nascimento
-        self.status_covid = status_covid
-        self.status_afastamento = status_afastamento
-        self.situacao = situacao
-        self.usuario_id_usuario = usuario_id_usuario
-        self.curso_id_curso = curso_id_curso
-        self.usuario = usuario
     
     @property
     def data_nascimento(self):
@@ -76,10 +56,15 @@ class DocenteModel(BaseHasNameModel, db.Model):
         except AttributeError as msg:
             print("usuario não cadastrado.")
             usuario_dict = None
+        
         finally:
             curso = db.session.query(
                 CursoModel.nome
             ).filter_by(id_curso=self.curso_id_curso).first()
+            
+            campus = db.session.query(
+                CampusModel.nome
+            ).filter_by(id_campus=self.campus_id_campus).first()
             
             return {
                 "id_docente":self.id_docente,
@@ -92,12 +77,14 @@ class DocenteModel(BaseHasNameModel, db.Model):
                 "usuario_id_usuario":self.usuario_id_usuario,
                 "usuario": usuario_dict if usuario_dict else 'nenhum registro',
                 "curso_id_curso":self.curso_id_curso,
-                "curso": curso.nome if curso else "nenhum curso"
+                "curso": curso.nome if curso else "nenhum curso",
+                "campus_id_campus":self.campus_id_campus,
+                "campus": campus.nome if campus else "nenhum campus"
             }
     
     @classmethod
     def query_all_names(cls):
-        return super().query_all_names(cls.nome, cls.id_tecnico)
+        return super().query_all_names(cls.nome.label("nome"), cls.id_docente.label("id"))
 
     def __repr__(self):
         return '<docente %r>' % self.id_direcao

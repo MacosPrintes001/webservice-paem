@@ -9,7 +9,7 @@ from datetime import time
 class AcessoPermitidoResource(Resource):
     
     ENDPOINT = 'acesso_permitido'
-    ROUTE = '/acessos_permitido/acesso_permitido'
+    ROUTE = '/acessos_permitidos/acesso_permitido'
         
     @Authorization.token_required
     def get(self):
@@ -47,7 +47,7 @@ class AcessoPermitidoResource(Resource):
 class ListaAcessoPermitidoResource(Resource):
     
     ENDPOINT = 'acessos_permitidos'
-    ROUTE = '/acessos_permitido'
+    ROUTE = '/acessos_permitidos'
     
     @Authorization.token_required
     def get(self):

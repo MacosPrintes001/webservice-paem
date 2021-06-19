@@ -20,5 +20,5 @@ class CampusController(BaseHasNameController):
         return super().delete(id, CampusModel)
 
     @classmethod
-    def get_list(cls):
+    def get_all_names(cls):
         return super().get_all_names(CampusModel)

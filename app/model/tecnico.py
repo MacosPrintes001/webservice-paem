@@ -19,30 +19,10 @@ class TecnicoModel(BaseHasNameModel, db.Model):
     status_afastamento = db.Column(db.SmallInteger, nullable=True)
 
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', lazy='subquery', uselist=False)
+    usuario = db.relationship('UsuarioModel', lazy='select', uselist=False)
 
     campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=True)
-    campus = db.relationship('CampusModel', lazy='noload')
-
-    def __init__(self, siape, 
-            nome, 
-            data_nascimento, 
-            cargo,
-            campus_id_campus,
-            status_covid=None, 
-            status_afastamento=None, 
-            usuario_id_usuario=None, 
-            id_tecnico=None):
-        
-        self.id_tecnico = id_tecnico
-        self.siape = siape
-        self.nome = nome
-        self.data_nascimento = data_nascimento
-        self.cargo = cargo
-        self.status_covid = status_covid
-        self.status_afastamento = status_afastamento
-        self.campus_id_campus = campus_id_campus
-        self.usuario_id_usuario = usuario_id_usuario
+    campus = db.relationship('CampusModel', uselist=False, lazy='noload')
 
     @property
     def data_nascimento(self):
@@ -78,9 +58,9 @@ class TecnicoModel(BaseHasNameModel, db.Model):
                 'status_covid':self.status_covid, 
                 'status_afastamento':self.status_afastamento, 
                 'usuario_id_usuario':self.usuario_id_usuario,
-                'usuario': usuario_dict if usuario_dict else 'nenhum registro',
+                'usuario': usuario_dict if usuario_dict else "null",
                 'campus_id_campus':self.campus_id_campus,
-                'campus': campus.nome if campus else "Nenhum campus no cadastro."
+                'campus': campus.nome if campus else "null"
             }
 
     @classmethod

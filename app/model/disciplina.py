@@ -18,13 +18,7 @@ class DisciplinaModel(db.Model):
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
 
-    discentes = db.relationship('DiscenteModel', secondary='disciplina_has_discente', lazy='subquery', backref=db.backref('disciplinas', lazy=True))
-
-    def __init__(self, nome, codigo_sigaa, semestre=None, id_disciplina=None):
-        self.id_disciplina = id_disciplina
-        self.nome = nome
-        self.codigo_sigaa = codigo_sigaa
-        self.semestre = semestre
+    discentes = db.relationship('DiscenteModel', secondary='disciplina_has_discente', lazy='select', backref=db.backref('disciplinas', lazy='select'))
 
     def serialize(self):
 

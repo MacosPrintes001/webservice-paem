@@ -1,6 +1,7 @@
 
 from .curso import CursoModel
 from .usuario import UsuarioModel
+from .campus import CampusModel
 from .base_model import BaseHasNameModel 
 from ..database import db
 from app.model import usuario
@@ -21,38 +22,14 @@ class DiscenteModel(BaseHasNameModel, db.Model):
     # TODO: add status_alerta
 
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', uselist=False, lazy='subquery')
+    usuario = db.relationship('UsuarioModel', uselist=False, lazy='select')
+
+    campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=True)
+    campus = db.relationship('CampusModel', uselist=False, lazy='select')
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
-    
-    def __init__(self, matricula, 
-                        nome, 
-                        curso_id_curso, 
-                        entrada=None, 
-                        semestre=None, 
-                        endereco=None, 
-                        grupo_risco=None, 
-                        status_covid=None, 
-                        status_permissao=None, 
-                        usuario_id_usuario=None,
-                        id_discente=None, 
-                        usuario=None
-                        ):
 
-        self.id_discente = id_discente
-        self.matricula = matricula
-        self.nome = nome
-        self.entrada = entrada
-        self.semestre = semestre
-        self.endereco = endereco
-        self.grupo_risco = grupo_risco
-        self.status_covid = status_covid
-        self.status_permissao = status_permissao
-        self.usuario_id_usuario = usuario_id_usuario
-        self.curso_id_curso = curso_id_curso
-
-        self.usuario = usuario
-
+    solicitacoes_acesso = db.relationship('SolicitacaoAcessoModel', uselist=False, lazy='select')
 
     def serialize(self):
 
@@ -68,6 +45,10 @@ class DiscenteModel(BaseHasNameModel, db.Model):
                 CursoModel.nome
             ).filter_by(id_curso=self.curso_id_curso).first()
             
+            campus = db.session.query(
+                CampusModel.nome
+            ).filter_by(id_campus=self.campus_id_campus).first()
+
             return {
                 'id_discente': self.id_discente, 
                 'nome': self.nome,
@@ -78,8 +59,9 @@ class DiscenteModel(BaseHasNameModel, db.Model):
                 'grupo_risco':self.grupo_risco,
                 'status_covid':self.status_covid,
                 'status_permissao':self.status_permissao,
-                'usuario': usuario_dict if usuario_dict else 'nenhum registro',
-                'curso': curso.nome if curso else "nenhum curso"
+                'usuario': usuario_dict if usuario_dict else "null",
+                'curso': curso.nome if curso else "null",
+                "campus": campus.nome if campus else "null"
             }
     
     @classmethod
