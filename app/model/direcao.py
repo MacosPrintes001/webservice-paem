@@ -11,13 +11,7 @@ class DirecaoModel(db.Model):
     status_ativo = db.Column(db.SmallInteger, nullable=True)
     
     docente_id_docente = db.Column(db.Integer, db.ForeignKey('docente.id_docente'), nullable=True)
-    docente = db.relationship('DocenteModel', uselist=False, lazy='subquery')
-
-    def __init__(self, data_entrada, data_saida, status_ativo, id_direcao=None):
-        self.id_direcao = id_direcao
-        self.data_entrada = data_entrada
-        self.data_saida = data_saida
-        self.status_ativo = status_ativo
+    docente = db.relationship('DocenteModel', uselist=False, lazy='select')
 
     @property
     def data_entrada(self):

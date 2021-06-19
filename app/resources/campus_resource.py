@@ -47,4 +47,4 @@ class ListaCampusResource(Resource):
     
     @Authorization.token_required
     def get(self):
-        return CampusController.get_list()
+        return CampusController.get_all_names()

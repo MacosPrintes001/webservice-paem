@@ -14,15 +14,6 @@ class UsuarioModel(BaseHasNameModel, db.Model):
     email = db.Column(db.String(45), unique=True, nullable=False)
     tipo = db.Column(db.Integer, nullable=False)
 
-    
-    def __init__(self, login, senha, email, cpf, tipo, id_usuario=None):
-        self.login = login
-        self.email = email
-        self.cpf = cpf
-        self.tipo = tipo
-        self.senha = senha
-        self.id_usuario = id_usuario
-
     @property
     def senha(self):
         return self._senha

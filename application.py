@@ -1,4 +1,3 @@
-
 from app import api
 from app import AuthorizationResource, AuthorizationBotResource
 from app import UsuarioResource, ListaUsuarioResource
@@ -19,7 +18,6 @@ from app import HomeResource
 
 def adicionar_recurso(Recurso):
     api.add_resource(Recurso, Recurso.ROUTE, endpoint=Recurso.ENDPOINT)
-
 
 adicionar_recurso(HomeResource)
     # Login and get token
@@ -47,6 +45,9 @@ adicionar_recurso(ListaRecursoCampusResource)
 adicionar_recurso(CampusResource)
 adicionar_recurso(ListaCampusResource)
 
+adicionar_recurso(DocenteResource)
+adicionar_recurso(ListaDocenteResource)
+
 # Objeto flask que será obtido para realizar o deploy na AWS
 # Ele está localizado abaixo dos recursos para ser
 # obtido depois que os recursos são adicionados
@@ -55,5 +56,5 @@ application = api.app
 
 if __name__=='__main__':
 
-    application.debug = True
+    # application.debug = True
     application.run()

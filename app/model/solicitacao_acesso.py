@@ -20,45 +20,18 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
       status_acesso = db.Column(db.SmallInteger, nullable=True)
       nome = db.Column(db.String(45), nullable=False)
       fone = db.Column(db.String(45), nullable=True)
+      cpf = db.Column(db.String(45), nullable=True)
+      visitante = db.Column(db.SmallInteger, nullable=True)
 
       usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
       usuario = db.relationship('UsuarioModel', uselist=False, lazy='noload')
 
       discente_id_discente = db.Column(db.Integer, db.ForeignKey('discente.id_discente'), nullable=True)
-      discente = db.relationship('DiscenteModel', uselist=False, lazy='noload', backref=db.backref('solicitacoes_acesso', lazy='subquery'))
-
-      # TODO: add visitante.
 
       recurso_campus_id_recurso_campus = db.Column(db.Integer, db.ForeignKey('recurso_campus.id_recurso_campus'), nullable=True)
       recurso_campus = db.relationship('RecursoCampusModel', uselist=False, lazy='noload')
       
-      acesso_permitido = db.relationship('AcessoPermitidoModel', uselist=False, lazy='subquery')
-
-      def __init__(self, 
-                   para_si,
-                   data,
-                   hora_inicio,
-                   hora_fim,
-                   status_acesso,
-                   nome,
-                   fone,
-                   usuario_id_usuario,
-                   discente_id_discente,
-                   recurso_campus_id_recurso_campus,
-                   id_solicitacao_acesso=None
-                                                ):
-
-          self.id_solicitacao_acesso = id_solicitacao_acesso
-          self.para_si = para_si
-          self.data = data
-          self.hora_inicio = hora_inicio
-          self.hora_fim = hora_fim
-          self.status_acesso = status_acesso
-          self.nome = nome
-          self.fone = fone
-          self.usuario_id_usuario = usuario_id_usuario
-          self.discente_id_discente = discente_id_discente
-          self.recurso_campus_id_recurso_campus = recurso_campus_id_recurso_campus
+      acesso_permitido = db.relationship('AcessoPermitidoModel', uselist=False, lazy='select')
 
       @property
       def data(self):
@@ -124,13 +97,13 @@ class SolicitacaoAcessoModel(BaseModel, db.Model):
                 'status_acesso':self.status_acesso,
                 'nome':self.nome,
                 'fone':self.fone,
-                'matricula': discente.matricula,
+                'matricula': discente.nome if discente else "null",
                 'usuario_id_usuario': self.usuario_id_usuario,
                 'discente_id_discente':self.discente_id_discente,
-                'discente': discente.nome if discente else "nenhum discente",
+                'discente': discente.nome if discente else "null",
                 'recurso_campus_id_recurso_campus':self.recurso_campus_id_recurso_campus,
-                'recurso_campus': recurso_campus.nome if recurso_campus else "nenhum recurso",
-                'acesso_permitido': acesso_permitido_dict if acesso_permitido_dict else "Nenhum registro de acesso"
+                'recurso_campus': recurso_campus.nome if recurso_campus else "null",
+                'acesso_permitido': acesso_permitido_dict if acesso_permitido_dict else "null"
             }
 
       @classmethod

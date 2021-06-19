@@ -13,19 +13,6 @@ class AcessoPermitidoModel(BaseModel, db.Model):
       __hora_saida = db.Column('hora_saida', db.Time, nullable=True)
     
       solicitacao_acesso_id_solicitacao_acesso = db.Column(db.Integer, db.ForeignKey('solicitacao_acesso.id_solicitacao_acesso'), nullable=True)
-    
-      def __init__(self,
-                    temperatura,
-                    hora_entrada,
-                    hora_saida,
-                    solicitacao_acesso_id_solicitacao_acesso,
-                    id_acesso_permitido=None
-                                            ):
-          self.id_acesso_permitido = id_acesso_permitido
-          self.temperatura = temperatura
-          self.hora_entrada = hora_entrada
-          self.hora_saida = hora_saida
-          self.solicitacao_acesso_id_solicitacao_acesso = solicitacao_acesso_id_solicitacao_acesso
 
       @property
       def hora_entrada(self):

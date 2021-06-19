@@ -15,30 +15,9 @@ class RecursoCampusModel(BaseHasNameModel, db.Model):
     __fim_horario_funcionamento = db.Column('fim_nicio_horario_funcionamento', db.Time, nullable=True)
     quantidade_horas = db.Column(db.Integer, nullable=True)
     
-    campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=False)
-    campus = db.relationship('CampusModel', backref=db.backref('recursos_campus', lazy=True))
-    
-    def __init__(self,
-            nome,
-            capacidade,
-            descricao,
-            inicio_horario_funcionamento,
-            fim_horario_funcionamento,
-            campus_id_campus,
-            quantidade_horas=None,
-            id_recurso_campus=None):
-        
-        self.id_recurso_campus = id_recurso_campus
-        self.nome = nome
-        self.capacidade = capacidade
-        self.descricao = descricao
-        self.inicio_horario_funciomaneto = inicio_horario_funcionamento
-        self.fim_horario_funcionamento = fim_horario_funcionamento
-        self.quantidade_horas = quantidade_horas
-        self.campus_id_campus = campus_id_campus
-        
-        
-
+    campus_id_campus = db.Column(db.Integer, db.ForeignKey('campus.id_campus'), nullable=True)
+    campus = db.relationship('CampusModel', backref=db.backref('recursos_campus', lazy='select'))
+            
     def serialize(self):
 
         campus = db.session.query(
@@ -54,7 +33,7 @@ class RecursoCampusModel(BaseHasNameModel, db.Model):
             'fim_horario_funcionamento':self.fim_horario_funcionamento,
             'quantidade_horas': self.quantidade_horas,
             'campus_id_campus':self.campus_id_campus,
-            'campus': campus.nome if campus else "Nenhum campi"
+            'campus': campus.nome if campus else "null"
         }
     
     @property                    
@@ -93,7 +72,7 @@ class RecursoCampusModel(BaseHasNameModel, db.Model):
     
     @classmethod
     def query_all_names(cls):
-        super().query_all_names(cls.nome.label("nome"), cls.id_recurso_campus.label("id"))
+        return super().query_all_names(cls.nome.label("nome"), cls.id_recurso_campus.label("id"))
 
     def __repr__(self):
         return '<recurso_campus %r>' % self.nome

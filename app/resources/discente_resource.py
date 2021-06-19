@@ -1,4 +1,4 @@
-from ..controller import DiscenteController
+from ..controller import DiscenteController, UsuarioController
 from ..util.authorization import Authorization
 
 from flask_restful import Resource, reqparse, request
@@ -25,23 +25,27 @@ class DiscenteResource(Resource):
         elif id_discente:
             return DiscenteController.get(id_discente)
 
-        return {"massage":"Required query string matricula or id_discente."}
+        return {"massage":" query string matricula or id_discente não encontrado."}
 
     @Authorization.token_required
     def post(self):
-        body = request.json
-        return DiscenteController.post(body)
+
+        discente_body  = request.json.get("discente")
+        usuario_body = request.json.get("usuario")
+        usuario = UsuarioController.create_usuario(usuario_body)
+        
+        return DiscenteController.post(discente_body, usuario)
       
     @Authorization.token_required
     def put(self):
-        body = request.json
-        return DiscenteController.put(body)
+        discente = request.json
+        return DiscenteController.put(discente)
 
     @Authorization.token_required
     def delete(self):
 
         parser = reqparse.RequestParser()
-        parser.add_argument("id_discente", type=int, required=True, help="Not found query string id_discente")
+        parser.add_argument("id_discente", type=int, required=True, help="query string id_discente não encontrada")
 
         args = parser.parse_args(strict=True)
         id_discente = args.get("id_discente")
@@ -56,4 +60,4 @@ class ListaDiscenteResource(Resource):
 
       @Authorization.token_required
       def get(self):
-          return DiscenteController.list()
+          return DiscenteController.get_all_names()

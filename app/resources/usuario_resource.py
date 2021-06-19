@@ -48,4 +48,4 @@ class ListaUsuarioResource(Resource):
 
     @Authorization.token_required
     def get(self):
-        return UsuarioController.get_list()
+        return UsuarioController.get_all_names()

@@ -14,27 +14,10 @@ class PortariaModel(BaseHasNameModel, db.Model):
     turno_trabalho = db.Column(db.SmallInteger, nullable=False)
 
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuario = db.relationship('UsuarioModel', lazy='subquery')
+    usuario = db.relationship('UsuarioModel', lazy='select')
 
     curso_id_curso = db.Column(db.Integer, db.ForeignKey('curso.id_curso'), nullable=True)
-    curso = db.relationship('CursoModel', lazy="noload")
-
-    def __init__(self, 
-            nome, 
-            data_nascimento, 
-            funcao, 
-            turno_trabalho,
-            usuario_id_usuario=None,
-            curso_id_curso=None, 
-            id_portaria=None):
-        
-        self.nome = nome
-        self.data_nascimento = data_nascimento
-        self.funcao = funcao
-        self.turno_trabalho = turno_trabalho
-        self.usuario_id_usuario = usuario_id_usuario
-        self.curso_id_curso = curso_id_curso
-        self.id_portaria = id_portaria
+    curso = db.relationship('CursoModel', lazy="select")
 
     def serialize(self):
 

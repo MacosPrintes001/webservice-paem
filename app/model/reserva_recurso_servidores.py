@@ -15,7 +15,7 @@ class ReservaRecursoServidoresModel(db.Model):
     descricao = db.Column(db.SmallInteger, nullable=True)
 
     usuario_id_usuario = db.Column(db.Integer, db.ForeignKey('usuario.id_usuario'), nullable=True)
-    usuarios = db.relationship('UsuarioModel', uselist=False, backref=db.backref('reserva_recurso_servidores', lazy='select'))
+    usuarios = db.relationship('UsuarioModel', uselist=False, lazy='select', backref=db.backref('reserva_recurso_servidores', lazy='select'))
 
     # TODO: Add recursos and os servidores(docentes, tecnicos..)
     

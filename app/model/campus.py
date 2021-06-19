@@ -1,7 +1,5 @@
 # Table structure for table `campus`
 from ..database import db
-from .curso import CursoModel
-from .direcao import DirecaoModel
 from .base_model import BaseHasNameModel
 
 from datetime import date
@@ -15,9 +13,7 @@ class CampusModel(BaseHasNameModel, db.Model):
     nome = db.Column(db.String(45), nullable=False)
     
     direcao_id_direcao = db.Column(db.Integer, db.ForeignKey('direcao.id_direcao'), nullable=True)
-    direcao = db.relationship('DirecaoModel', uselist=False, lazy='subquery', backref=db.backref('campus', lazy='subquery'))
-
-    campus = db.relationship('CursoModel', lazy='subquery', uselist=False)
+    direcao = db.relationship('DirecaoModel', uselist=False, lazy='select')
 
     @property
     def ano_fundacao(self):
@@ -30,14 +26,6 @@ class CampusModel(BaseHasNameModel, db.Model):
             data = date(day=int(day), month=int(month), year=int(year))
 
         self.__ano_fundacao = data
-
-    def __init__(self, nome, ano_fundacao, id_campus=None, direcao_id_direcao=None):
-        self.nome = nome
-        self.ano_fundacao = ano_fundacao
-        self.id_campus = id_campus
-        self.direcao_id_direcao = direcao_id_direcao,
-        
-
 
     def serialize(self):
         
@@ -52,7 +40,7 @@ class CampusModel(BaseHasNameModel, db.Model):
                 "ano_fundacao":self.ano_fundacao,
                 "id_campus":self.id_campus,
                 'direcao_id_direcao': self.direcao_id_direcao,
-                "direcao": docente_dict if docente_dict else 'nenhum registro' 
+                "direcao": docente_dict if docente_dict else 'null' 
             }
 
     @classmethod

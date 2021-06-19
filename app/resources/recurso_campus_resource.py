@@ -48,4 +48,4 @@ class ListaRecursoCampusResource(Resource):
 
     @Authorization.token_required
     def get(self):
-        return RecursoCampusController.get_list()
+        return RecursoCampusController.get_all_names()

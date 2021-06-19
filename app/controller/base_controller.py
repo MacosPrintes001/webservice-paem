@@ -5,6 +5,9 @@ class BaseController:
     
     @classmethod
     def get_by_id(cls, id, Model):
+        
+        if not id:
+            return{"message":"id can't be null."}, BAD_REQUEST
 
         model = Model.find_by_id(id)
         if not model:
@@ -60,7 +63,7 @@ class BaseController:
         return serialized
     
 class BaseHasNameController(BaseController):
-
+    
     @classmethod
     def get_all_names(cls, Model):
         
@@ -71,3 +74,17 @@ class BaseHasNameController(BaseController):
         names_dict = {row.nome:row.id for row in model_names}
         
         return names_dict
+
+class BaseHasUsuarioController(BaseHasNameController):
+
+    @classmethod
+    def post(cls, body, Model, usuario):
+
+        if not body:
+            return {"message":"não há dados no body da requsição."}, BAD_REQUEST
+        
+        print(body)
+        new_model = Model(**body, usuario=usuario)
+        new_model.save_to_db()
+
+        return new_model.serialize(), CREATED
