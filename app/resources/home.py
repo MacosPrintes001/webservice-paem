@@ -15,6 +15,7 @@ class HomeResource(Resource):
                 "discente": ["/discentes", "/discentes/discente"],
                 "docente": ["/docentes", "/docentes/docente"],
                 "tecnico": ["/tecnicos", "/tecnicos/tecnico"],
+                "curso": ["/cursos", "/cursos/curso"],
                 "campus": ["/campus", "/campus/campi"],
                 "recurso_campus": ["/recursos_campus", "/recursos_campus/recurso_campus"],
                 "solicitacao_acesso": ["/solicitacoes_acessos", "/solicitacoes_acessos/solicitacao_acesso"],
