@@ -1,18 +1,24 @@
 from ..model import CursoModel
+from .base_controller import BaseHasNameController
 
-class CursoController:
+class CursoController(BaseHasNameController):
     
-    def get(self):
-        pass
+    @classmethod
+    def get(cls, id):
+        return super().get_by_id(id, CursoModel)
 
-    def post(self):
-        pass
+    @classmethod
+    def post(cls, body):
+        return super().post(body, CursoModel)
 
-    def put(self):
-        pass
+    @classmethod
+    def put(cls, body):
+        return super().put(body, CursoModel)
 
-    def delete(self):
-        pass
+    @classmethod
+    def delete(cls, id):
+        return super().delete(id, CursoModel)
 
-    def get_list(self):
-        pass
+    @classmethod
+    def get_all_names(cls):
+        return super().get_all_names(CursoModel)

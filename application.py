@@ -48,6 +48,9 @@ adicionar_recurso(ListaCampusResource)
 adicionar_recurso(DocenteResource)
 adicionar_recurso(ListaDocenteResource)
 
+adicionar_recurso(CursoResource)
+adicionar_recurso(ListaCursoResource)
+
 # Objeto flask que será obtido para realizar o deploy na AWS
 # Ele está localizado abaixo dos recursos para ser
 # obtido depois que os recursos são adicionados
@@ -56,5 +59,5 @@ application = api.app
 
 if __name__=='__main__':
 
-    # application.debug = True
+    application.debug = True
     application.run()
