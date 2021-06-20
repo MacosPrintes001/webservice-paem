@@ -12,7 +12,7 @@ app = Flask(__name__)
 
 # SQLAlchemy config
 #see queries on terminal
-app.config['SQLALCHEMY_ECHO'] = True
+# app.config['SQLALCHEMY_ECHO'] = True
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
