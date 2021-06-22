@@ -98,14 +98,15 @@ class Authorization():
                    
             auth_key = 'Authorization'
             if auth_key in request.headers:
-                cpf = request.headers[auth_key]
+                cpf_header = request.headers[auth_key]
 
             else:
                 return {'message':'acesso não autorizado.'}, UNAUTHORIZED_REQUEST
 
-            if not ("CPF" in cpf):
+            if not ("CPF" in cpf_header):
                 return {'message':'CPF invalido'}, BAD_REQUEST
-
+            
+            cpf = cpf_header.split()[1]
             usuario = UsuarioController.get_by_cpf(cpf)
             
             if not usuario:
