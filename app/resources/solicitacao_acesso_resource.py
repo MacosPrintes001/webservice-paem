@@ -10,7 +10,7 @@ class SolicitacaoAcessoResource(Resource):
     ENDPOINT = 'solicitacao_acesso'
     ROUTE = '/solicitacoes_acessos/solicitacao_acesso'
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def get(self):
         
         parser = reqparse.RequestParser()
@@ -29,17 +29,17 @@ class SolicitacaoAcessoResource(Resource):
 
         return {"message":"Required query string id_solicitacao_acesso or id_discente."}, BAD_REQUEST
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def post(self):
         body = request.json
         return SolicitacaoAcessoController.post(body)
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def put(self):
         body = request.json
         return SolicitacaoAcessoController.put(body)
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def delete(self):
 
         parser = reqparse.RequestParser()
@@ -55,7 +55,7 @@ class ListaSolicitacaoAcessoResource(Resource):
     ENDPOINT = 'solicitacoes_acessos'
     ROUTE = '/solicitacoes_acessos'
     
-    @Authorization.token_required
+    @Authorization.token_required()
     def get(self):
         return SolicitacaoAcessoController.get_list()
 

@@ -22,7 +22,7 @@ class AuthorizationResource(Resource):
         return is_auth
     
     @http_auth.login_required
-    def get(self):
+    def post(self):
         login = http_auth.username()
         print("usuario: ", login)
         return Authorization.get_token(login)
@@ -34,6 +34,6 @@ class AuthorizationBotResource(Resource):
     ROUTE = '/auth.bot'
     
     @Authorization.cpf_required
-    def get(self, usuario):
+    def post(self, usuario):
         return Authorization.get_token(usuario.login)
 

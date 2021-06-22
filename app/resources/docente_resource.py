@@ -7,7 +7,7 @@ class DocenteResource(Resource):
     ENDPOINT = 'docente'
     ROUTE = '/docentes/docente'
 
-    @Authorization.token_required    
+    @Authorization.token_required()    
     def get(self):
         parse = reqparse.RequestParser()
         parse.add_argument("id_docente", required=True, type=int, help="Query string id_discente must be integer")
@@ -16,7 +16,7 @@ class DocenteResource(Resource):
         
         return DocenteController.get(id_docente)
     
-    @Authorization.token_required
+    @Authorization.token_required()
     def post(self):
         body = request.json
         docente_body = body.get("docente")
@@ -25,12 +25,12 @@ class DocenteResource(Resource):
 
         return DocenteController.post(docente_body, usuario=usuario)
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def put(self):
         body = request.json
         return DocenteController.put(body)
     
-    @Authorization.token_required
+    @Authorization.token_required()
     def delete(self):
         parse = reqparse.RequestParser()
         parse.add_argument("id_docente", required=True, type=int, help="Query string id_discente must be integer")
@@ -44,6 +44,6 @@ class ListaDocenteResource(Resource):
     ENDPOINT = 'docentes'
     ROUTE = '/docentes'
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def get(self):
         return DocenteController.get_all_names()    

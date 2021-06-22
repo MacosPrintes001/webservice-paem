@@ -7,7 +7,7 @@ class DiscenteResource(Resource):
     ENDPOINT = 'discente'
     ROUTE = '/discentes/discente'
     
-    @Authorization.token_required
+    @Authorization.token_required()
     def get(self):
 
         parser = reqparse.RequestParser()
@@ -27,7 +27,7 @@ class DiscenteResource(Resource):
 
         return {"massage":" query string matricula or id_discente não encontrado."}
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def post(self):
 
         discente_body  = request.json.get("discente")
@@ -36,12 +36,12 @@ class DiscenteResource(Resource):
         
         return DiscenteController.post(discente_body, usuario)
       
-    @Authorization.token_required
+    @Authorization.token_required()
     def put(self):
         discente = request.json
         return DiscenteController.put(discente)
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def delete(self):
 
         parser = reqparse.RequestParser()
@@ -58,6 +58,6 @@ class ListaDiscenteResource(Resource):
       ENDPOINT = 'discentes'
       ROUTE = '/discentes'
 
-      @Authorization.token_required
+      @Authorization.token_required()
       def get(self):
           return DiscenteController.get_all_names()

@@ -8,7 +8,7 @@ class CampusResource(Resource):
     ENDPOINT = 'campi'
     ROUTE = '/campus/campi'
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def get(self):
 
         parser = reqparse.RequestParser()
@@ -19,17 +19,17 @@ class CampusResource(Resource):
         
         return CampusController.get(id_campus)
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def post(self):
         body = request.json
         return CampusController.post(body)
       
-    @Authorization.token_required
+    @Authorization.token_required()
     def put(self):
         body = request.json
         return CampusController.put(body)
 
-    @Authorization.token_required
+    @Authorization.token_required()
     def delete(self):
 
         parser = reqparse.RequestParser()
@@ -45,6 +45,6 @@ class ListaCampusResource(Resource):
     ENDPOINT = 'campus'
     ROUTE = '/campus'
     
-    @Authorization.token_required
+    @Authorization.token_required()
     def get(self):
         return CampusController.get_all_names()
