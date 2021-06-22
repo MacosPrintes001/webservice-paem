@@ -4,6 +4,7 @@ from ..controller import SolicitacaoAcessoController
 
 from flask_restful import Resource, reqparse, request
 
+
 class SolicitacaoAcessoResource(Resource):
     
     ENDPOINT = 'solicitacao_acesso'
@@ -32,7 +33,7 @@ class SolicitacaoAcessoResource(Resource):
     def post(self):
         body = request.json
         return SolicitacaoAcessoController.post(body)
-            
+
     @Authorization.token_required
     def put(self):
         body = request.json

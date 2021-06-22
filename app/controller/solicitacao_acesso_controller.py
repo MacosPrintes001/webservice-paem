@@ -1,8 +1,11 @@
 from ..model import SolicitacaoAcessoModel
+from ..util.http_status_code import BAD_REQUEST
+
 from .base_controller import BaseController
 
+
 class SolicitacaoAcessoController(BaseController):
-    
+   
     @classmethod
     def get(cls, id):
         return super().get_by_id(id, SolicitacaoAcessoModel)
@@ -17,7 +20,12 @@ class SolicitacaoAcessoController(BaseController):
 
     @classmethod
     def put(cls, body):
-        return super().put(body, SolicitacaoAcessoModel)
+        try:
+            response = super().put(body, SolicitacaoAcessoModel)
+            return response
+
+        except ValueError as msg:
+            return {"message":msg}, BAD_REQUEST 
 
     @classmethod
     def delete(cls, id):

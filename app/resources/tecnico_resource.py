@@ -26,12 +26,12 @@ class TecnicoResource(Resource):
         usuario = UsuarioController.create_usuario(usuario_body)
 
         return TecnicoController.post(tecnico_body, usuario)
-    
+
     @Authorization.token_required
     def put(self):
         body = request.json
         return TecnicoController.put(body)
-    
+
     @Authorization.token_required
     def delete(self):
         
@@ -42,6 +42,7 @@ class TecnicoResource(Resource):
         id_tecnico = args.get('id_tecnico')
 
         return TecnicoController.delete(id_tecnico)
+
 
 class ListaTecnicoResource(Resource):
     

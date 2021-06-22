@@ -31,17 +31,24 @@ class BaseController:
     def put(cls, body, Model):
 
         if not body:
-            return {"message":"Not found body data"}, BAD_REQUEST
+            return {"message":"Dados não encontrado no corpo da requisição."}, BAD_REQUEST
         
-        id_key = list(filter(lambda k:'id_' in k, body.keys()))[0]
+        try:
+            id_key = list(filter(lambda k: k.startswith("id_"), body.keys()))[0]
+        except IndexError:
+            return {"message":"id não encontrado. O id do recurso deve ser enviado na requisição para realizar a atualização."}, BAD_REQUEST
+        
         id = body.get(id_key)
 
         model = Model.find_by_id(id)
         if not model:
-            return {"message":"It do not found this resource."}, BAD_REQUEST
+            return {
+                "message":"dados não encontrado para esse recurso."\
+                "Para realizar a atualização o recurso deve está registrado no banco de dados."
+            }, BAD_REQUEST
 
         Model.update_by_id(id, body)
-        
+    
         return {"message":"Updated"}, OK
 
     @classmethod
