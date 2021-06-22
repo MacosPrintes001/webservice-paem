@@ -7,11 +7,11 @@ class BaseController:
     def get_by_id(cls, id, Model):
         
         if not id:
-            return{"message":"id can't be null."}, BAD_REQUEST
+            return {"message":"id não pode ser nulo."}, BAD_REQUEST
 
         model = Model.find_by_id(id)
         if not model:
-            return {"message":"Not found this resource."}, NOT_FOUND_REQUEST
+            return {"message":"Recurso não encontrado."}, NOT_FOUND_REQUEST
       
         return model.serialize(), OK
     
@@ -19,7 +19,7 @@ class BaseController:
     def post(cls, body, Model):
 
         if not body:
-            return {"message":"Not found body data ."}, BAD_REQUEST
+            return {"message":"Não encontrado dados no corpo da requisição."}, BAD_REQUEST
         
         print(body)
         new_model = Model(**body)
@@ -49,7 +49,7 @@ class BaseController:
 
         Model.update_by_id(id, body)
     
-        return {"message":"Updated"}, OK
+        return {"message":"Utualizado com sucesso."}, OK
 
     @classmethod
     def delete(cls, id, Model):
