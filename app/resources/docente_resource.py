@@ -16,7 +16,7 @@ class DocenteResource(Resource):
         
         return DocenteController.get(id_docente)
     
-    @Authorization.token_required()
+    # @Authorization.token_required()
     def post(self):
         body = request.json
         docente_body = body.get("docente")

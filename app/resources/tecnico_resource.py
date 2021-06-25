@@ -18,7 +18,7 @@ class TecnicoResource(Resource):
 
         return TecnicoController.get(id_tecnico)
     
-    @Authorization.token_required()
+    # @Authorization.token_required()
     def post(self):
 
         tecnico_body = request.json.get("tecnico")

@@ -27,7 +27,7 @@ class DiscenteResource(Resource):
 
         return {"massage":" query string matricula or id_discente não encontrado."}
 
-    @Authorization.token_required()
+    # @Authorization.token_required()
     def post(self):
 
         discente_body  = request.json.get("discente")
