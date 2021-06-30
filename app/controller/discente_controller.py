@@ -1,9 +1,9 @@
-from .base_controller import BaseHasNameController, BaseHasUsuarioController
+from .base_controller import BaseHasOtherIdController
 from ..model import DiscenteModel
 from ..util.http_status_code import OK, CREATED, BAD_REQUEST, NOT_FOUND_REQUEST
 
 
-class DiscenteController(BaseHasUsuarioController):
+class DiscenteController(BaseHasOtherIdController):
     
     @classmethod
     def get_by_matricula(cls, matricula):

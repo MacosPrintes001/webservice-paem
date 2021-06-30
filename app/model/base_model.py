@@ -41,7 +41,7 @@ class BaseModel():
 # class to working on person atributes 
 class BaseHasNameModel(BaseModel):
     '''
-        Base model for tbles that has a name column
+        Base model for tables that has a name column
     '''
     # @classmethod
     # def find_by_name(cls, nome):

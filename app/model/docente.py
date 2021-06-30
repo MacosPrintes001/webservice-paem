@@ -84,7 +84,11 @@ class DocenteModel(BaseHasNameModel, db.Model):
     
     @classmethod
     def query_all_names(cls):
-        return super().query_all_names(cls.nome.label("nome"), cls.id_docente.label("id"))
+        return super().query_all_names(
+            cls.nome.label("nome"), 
+            cls.id_docente.label("id"),
+            cls.siape.label("other_id")
+        )
 
     def __repr__(self):
         return '<docente %r>' % self.id_direcao

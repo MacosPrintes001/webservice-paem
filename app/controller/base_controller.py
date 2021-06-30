@@ -82,6 +82,7 @@ class BaseHasNameController(BaseController):
         
         return names_dict
 
+#Class to handle users
 class BaseHasUsuarioController(BaseHasNameController):
 
     @classmethod
@@ -95,3 +96,17 @@ class BaseHasUsuarioController(BaseHasNameController):
         new_model.save_to_db()
 
         return new_model.serialize(), CREATED
+
+#class to randle user that has matricula or siape
+class BaseHasOtherIdController(BaseHasNameController):
+
+    @classmethod
+    def get_all_names(cls, Model):
+        
+        # models_names receve a tuple of (nome , id)
+        model_names = Model.query_all_names()
+
+        #create a dict with nome as key and id as a value
+        names_dict = {row.nome:[row.id, row.other_id] for row in model_names}
+        
+        return names_dict

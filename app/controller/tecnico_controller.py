@@ -1,7 +1,7 @@
 from ..model import TecnicoModel
-from .base_controller import BaseHasNameController, BaseHasUsuarioController
+from .base_controller import BaseHasOtherIdController
 
-class TecnicoController(BaseHasUsuarioController):
+class TecnicoController(BaseHasOtherIdController):
     
     @classmethod
     def get(cls, id_tecnico):

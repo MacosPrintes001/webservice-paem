@@ -46,7 +46,10 @@ class PortariaModel(BaseHasNameModel, db.Model):
     
     @classmethod
     def query_all_names(cls):
-        return super().query_all_names(cls.nome, cls.id_portaria)
+        return super().query_all_names(
+            cls.nome.label("nome"), 
+            cls.id_portaria.label("id")
+        )
 
     def __repr__(self):
         return '<portaria %r>' % self.nome

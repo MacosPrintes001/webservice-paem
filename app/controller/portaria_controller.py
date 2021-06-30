@@ -1,7 +1,8 @@
 from ..model import PortariaModel
+from .base_controller import BaseHasUsuarioController
 
 
-class PortariaController:
+class PortariaController(BaseHasUsuarioController):
     
     def get(self):
         pass

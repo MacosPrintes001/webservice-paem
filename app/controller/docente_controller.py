@@ -1,7 +1,7 @@
 
 from ..model import DocenteModel
-from .base_controller import BaseHasUsuarioController
-class DocenteController(BaseHasUsuarioController):
+from .base_controller import BaseHasOtherIdController
+class DocenteController(BaseHasOtherIdController):
 
     @classmethod
     def get(cls, id):

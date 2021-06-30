@@ -75,7 +75,11 @@ class DiscenteModel(BaseHasNameModel, db.Model):
 
     @classmethod
     def query_all_names(cls):
-        return super().query_all_names(cls.nome.label("nome"), cls.id_discente.label("id"))
+        return super().query_all_names(
+            cls.nome.label("nome"), 
+            cls.id_discente.label("id"),
+            cls.matricula.label("other_id")
+        )
     
     def __repr__(self):
         return '<discente %r>' % self.login
