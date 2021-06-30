@@ -107,6 +107,6 @@ class BaseHasOtherIdController(BaseHasNameController):
         model_names = Model.query_all_names()
 
         #create a dict with nome as key and id as a value
-        names_dict = {row.nome:[row.id, row.other_id] for row in model_names}
+        names_dict = [{"nome":row.nome, "id":row.id, "matricula":row.other_id} for row in model_names]
         
         return names_dict
