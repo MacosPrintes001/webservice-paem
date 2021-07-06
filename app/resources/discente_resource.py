@@ -7,30 +7,30 @@ class DiscenteResource(Resource):
     ENDPOINT = 'discente'
     ROUTE = '/discentes/discente'
     
-    # @Authorization.token_required()
-    def get(self):
+    @Authorization.token_required(with_usuario=True)
+    def get(self, usuario):
 
-        parser = reqparse.RequestParser()
-        parser.add_argument('matricula', type=str, required=False, help="You need to send query string maticula.")
-        parser.add_argument('id_discente', type=int, required=False, help="Query string id_discente must be integer.")
-        parser.add_argument('usuario_id_usuario', type=int, required=False, help="Query string usuario_id_usuario must be integer.")
+        # parser = reqparse.RequestParser()
+        # parser.add_argument('matricula', type=str, required=False, help="You need to send query string maticula.")
+        # parser.add_argument('id_discente', type=int, required=False, help="Query string id_discente must be integer.")
+        # parser.add_argument('usuario_id_usuario', type=int, required=False, help="Query string usuario_id_usuario must be integer.")
 
-        args = parser.parse_args(strict=True)
+        # args = parser.parse_args()
 
-        matricula = args.get("matricula")
-        id_discente = args.get("id_discente")
-        usuario_id_usuario = args.get("usuario_id_usuario")
+        # matricula = args.get("matricula")
+        # id_discente = args.get("id_discente")
+        # usuario_id_usuario = args.get("usuario_id_usuario")
 
-        if matricula:
-            return DiscenteController.get_by_matricula(matricula)
+        # if matricula:
+        #     return DiscenteController.get_by_matricula(matricula)
 
-        if id_discente:
-            return DiscenteController.get(id_discente)
+        # if id_discente:
+        #     return DiscenteController.get(id_discente)
         
-        if usuario_id_usuario:
-            return DiscenteController.get_by_usuario(usuario_id_usuario) 
+        if usuario:
+            return DiscenteController.get_by_usuario(usuario.id_usuario) 
         
-        return {"message":" query string não encontrada."}
+        return {"message":" there is no user logged."}
 
     # @Authorization.token_required()
     def post(self):

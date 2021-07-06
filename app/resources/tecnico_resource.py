@@ -8,25 +8,25 @@ class TecnicoResource(Resource):
     ENDPOINT = 'tecnico'
     ROUTE = '/tecnicos/tecnico'
 
-    @Authorization.token_required()
-    def get(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('id_tecnico', type=int, required=True, help="Required query string id_tecnico.")
-        parser.add_argument('usuario_id_usuario', type=int, required=False, help="Query string usuario_id_usuario must be integer.")
+    @Authorization.token_required(with_usuario=True)
+    def get(self, usuario):
+        # parser = reqparse.RequestParser()
+        # parser.add_argument('id_tecnico', type=int, required=False, help="Required query string id_tecnico.")
+        # parser.add_argument('usuario_id_usuario', type=int, required=False, help="Query string usuario_id_usuario must be integer.")
 
-        args = parser.parse_args(strict=True)
-        id_tecnico = args.get('id_tecnico')
-        usuario_id_usuario = args.get("usuario_id_usuario")
+        # args = parser.parse_args()
+        # id_tecnico = args.get('id_tecnico')
+        # usuario_id_usuario = args.get("usuario_id_usuario")
 
-        if id_tecnico:
-            return TecnicoController.get(id_tecnico)
+        # if id_tecnico:
+        #     return TecnicoController.get(id_tecnico)
         
-        if usuario_id_usuario:
-            return TecnicoController.get_by_usuario(usuario_id_usuario) 
+        if usuario:
+            return TecnicoController.get_by_usuario(usuario.id_usuario) 
 
-        return {"massage":" query string não encontrada."}
+        return {"message":"there is no user logged."}
     
-    # @Authorization.token_required()
+    @Authorization.token_required()
     def post(self):
 
         tecnico_body = request.json.get("tecnico")

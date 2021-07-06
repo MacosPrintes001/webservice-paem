@@ -7,25 +7,25 @@ class DocenteResource(Resource):
     ENDPOINT = 'docente'
     ROUTE = '/docentes/docente'
 
-    @Authorization.token_required()    
-    def get(self):
-        parse = reqparse.RequestParser()
-        parse.add_argument("id_docente", required=False, type=int, help="Query string id_discente must be integer")
-        parse.add_argument("usuario_id_usuario", Required=True, type=int, help="Query string usuario_id_usuario must be integer")
+    @Authorization.token_required(with_usuario=True)    
+    def get(self, usuario):
+        # parse = reqparse.RequestParser()
+        # parse.add_argument("id_docente", required=False, type=int, help="Query string id_discente must be integer")
+        # parse.add_argument("usuario_id_usuario", Required=True, type=int, help="Query string usuario_id_usuario must be integer")
         
-        args = parse.parse_args(strict=True)
-        id_docente = args.get("id_docente")
-        usuario_id_usuario = args.get("usuario_id_usuario")
+        # args = parse.parse_args()
+        # id_docente = args.get("id_docente")
+        # usuario_id_usuario = args.get("usuario_id_usuario")
 
-        if id_docente:
-            DocenteController.get(id_docente)
+        # if id_docente:
+            # DocenteController.get(id_docente)
 
-        if usuario_id_usuario:
-            DocenteController.get_by_usuario(usuario_id_usuario)
-
-        return {"massage":" query string não encontrada."}
+        if usuario:
+            return DocenteController.get_by_usuario(usuario.id_usuario)
+        
+        return {"message": "there is no user logged."}
     
-    # @Authorization.token_required()
+    @Authorization.token_required()
     def post(self):
         body = request.json
         docente_body = body.get("docente")
