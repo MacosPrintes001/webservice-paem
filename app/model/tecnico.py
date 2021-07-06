@@ -1,13 +1,13 @@
 from ..database import db
 from .usuario import UsuarioModel
 from .campus import CampusModel
-from .base_model import BaseHasNameModel
+from .base_model import BaseHasUsuarioModel
 from datetime import date
 
 from app.model import campus
 
 
-class TecnicoModel(BaseHasNameModel, db.Model):
+class TecnicoModel(BaseHasUsuarioModel, db.Model):
     __tablename__ = "tecnico"
 
     id_tecnico = db.Column(db.Integer, primary_key=True)

@@ -4,7 +4,7 @@ from ..util.http_status_code import OK, CREATED, BAD_REQUEST, NOT_FOUND_REQUEST
 class BaseController:
     
     @classmethod
-    def get_by_id(cls, id, Model):
+    def get(cls, id, Model):
         
         if not id:
             return {"message":"id não pode ser nulo."}, BAD_REQUEST
@@ -78,9 +78,29 @@ class BaseHasNameController(BaseController):
         model_names = Model.query_all_names()
 
         #create a dict with nome as key and id as a value
-        names_dict = {row.nome:row.id for row in model_names}
+        names_dict = [{"nome":row.nome, "id":row.id} for row in model_names]
         
         return names_dict
+
+# class to show up recurso_campus
+class BaseHasHorarioController(BaseHasNameController):
+
+        @classmethod
+        def get_all_names(cls, Model):
+            # models_names receve a tuple of (nome , id)
+            model_names = Model.query_all_names()
+
+            #create a dict with nome as key and id as a value
+            names_dict = [
+                {
+                    "nome":row.nome, 
+                    "id":row.id, 
+                    "inicio_horario":str(row.inicio_horario),
+                    "fim_hoario":str(row.inicio_horario)
+                } for row in model_names
+            ]
+            
+            return names_dict
 
 #Class to handle users
 class BaseHasUsuarioController(BaseHasNameController):
@@ -97,6 +117,10 @@ class BaseHasUsuarioController(BaseHasNameController):
 
         return new_model.serialize(), CREATED
 
+    @classmethod
+    def get_by_usuario(cls, usuario_id_usuario, Model):
+        return Model.find_by_id_usuario(usuario_id_usuario)
+
 #class to randle user that has matricula or siape
 class BaseHasOtherIdController(BaseHasNameController):
 
@@ -108,5 +132,18 @@ class BaseHasOtherIdController(BaseHasNameController):
 
         #create a dict with nome as key and id as a value
         names_dict = [{"nome":row.nome, "id":row.id, "matricula":row.other_id} for row in model_names]
+        
+        return names_dict
+
+class BaseHasCPFController(BaseController):
+    
+    @classmethod
+    def get_all_names(cls, Model):
+        
+        # models_names receve a tuple of (nome , id)
+        model_names = Model.query_all_names()
+
+        #create a dict with nome as key and id as a value
+        names_dict = [{"nome":row.nome, "id":row.id, "cpf":row.cpf} for row in model_names]
         
         return names_dict

@@ -5,7 +5,7 @@ class CampusController(BaseHasNameController):
     
     @classmethod
     def get(cls, id):
-        return super().get_by_id(id, CampusModel)
+        return super().get(id, CampusModel)
 
     @classmethod
     def post(cls, body):

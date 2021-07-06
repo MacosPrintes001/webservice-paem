@@ -55,4 +55,13 @@ class BaseHasNameModel(BaseModel):
     @classmethod
     def query_all_names(*entiries):
         return list(db.session.query(*entiries).all())
-    
+
+# List id_usuario of all that is user
+class BaseHasUsuarioModel(BaseHasNameModel):
+    '''
+        Base model for tables that has a name column
+    '''
+
+    @classmethod
+    def find_by_id_usuario(cls, usuario_id_usuario):
+       return cls.query.filter_by(usuario_id_usuario=usuario_id_usuario)

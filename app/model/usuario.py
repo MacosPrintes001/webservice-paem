@@ -48,7 +48,11 @@ class UsuarioModel(BaseHasNameModel, db.Model):
 
     @classmethod
     def query_all_names(cls):
-        return super().query_all_names(cls.login.label("nome"), cls.id_usuario.label("id"))
+        return super().query_all_names(
+            cls.login.label("nome"),
+            cls.id_usuario.label("id"),
+            cls.cpf.label("cpf")
+        )
 
     def __repr__(self):
         return '<usuario %r>' % self.login

@@ -1,8 +1,8 @@
 from ..model import UsuarioModel
-from .base_controller import BaseHasNameController
+from .base_controller import BaseHasCPFController
 from ..util.http_status_code import BAD_REQUEST
 
-class UsuarioController(BaseHasNameController):
+class UsuarioController(BaseHasCPFController):
 
     @classmethod
     def create_usuario(cls, usuario_dict):
@@ -17,7 +17,7 @@ class UsuarioController(BaseHasNameController):
 
     @classmethod
     def get(cls, id):
-        return cls.get_by_id(id, UsuarioModel)
+        return cls.get(id, UsuarioModel)
 
     @classmethod
     def post(cls, body):

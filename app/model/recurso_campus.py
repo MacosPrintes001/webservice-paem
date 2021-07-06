@@ -1,5 +1,4 @@
 from ..database import db
-from .base_model import BaseModel
 from .campus import BaseHasNameModel, CampusModel
 from datetime import time
 
@@ -72,7 +71,12 @@ class RecursoCampusModel(BaseHasNameModel, db.Model):
     
     @classmethod
     def query_all_names(cls):
-        return super().query_all_names(cls.nome.label("nome"), cls.id_recurso_campus.label("id"))
+        return super().query_all_names(
+            cls.nome.label("nome"), 
+            cls.id_recurso_campus.label("id"),
+            cls.__inicio_horario_funcionamento.label("inicio_horario"),
+            cls.__fim_horario_funcionamento.label("fim_horario")
+        )
 
     def __repr__(self):
         return '<recurso_campus %r>' % self.nome

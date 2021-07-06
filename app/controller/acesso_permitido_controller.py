@@ -5,7 +5,7 @@ class AcessoPermitidoController(BaseController):
     
     @classmethod
     def get(cls, id):
-        return super().get_by_id(id, AcessoPermitidoModel)
+        return super().get(id, AcessoPermitidoModel)
 
     @classmethod
     def post(cls, body):

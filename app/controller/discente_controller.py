@@ -1,9 +1,9 @@
-from .base_controller import BaseHasOtherIdController
+from .base_controller import BaseHasOtherIdController, BaseHasUsuarioController
 from ..model import DiscenteModel
 from ..util.http_status_code import OK, CREATED, BAD_REQUEST, NOT_FOUND_REQUEST
 
 
-class DiscenteController(BaseHasOtherIdController):
+class DiscenteController(BaseHasUsuarioController, BaseHasOtherIdController):
     
     @classmethod
     def get_by_matricula(cls, matricula):
@@ -16,7 +16,11 @@ class DiscenteController(BaseHasOtherIdController):
 
     @classmethod
     def get(cls, id):
-        return super().get_by_id(id, DiscenteModel)
+        return super().get(id, DiscenteModel)
+    
+    @classmethod
+    def get_by_usuario(cls, usuario_id_usuario):
+        return super().get_by_usuario(usuario_id_usuario, DiscenteModel)
 
     @classmethod
     def post(cls, body, usuario):

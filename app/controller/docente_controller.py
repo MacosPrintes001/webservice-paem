@@ -1,11 +1,15 @@
 
 from ..model import DocenteModel
-from .base_controller import BaseHasOtherIdController
-class DocenteController(BaseHasOtherIdController):
+from .base_controller import BaseHasOtherIdController, BaseHasUsuarioController
+class DocenteController(BaseHasUsuarioController, BaseHasOtherIdController):
 
     @classmethod
     def get(cls, id):
-        return super().get_by_id(id, DocenteModel)
+        return super().get(id, DocenteModel)
+    
+    @classmethod
+    def get_by_usuario(cls, usuario_id_usuario):
+        return super().get_by_usuario(usuario_id_usuario, DocenteModel)
 
     @classmethod
     def post(cls, body, usuario):

@@ -5,7 +5,7 @@ class CursoController(BaseHasNameController):
     
     @classmethod
     def get(cls, id):
-        return super().get_by_id(id, CursoModel)
+        return super().get(id, CursoModel)
 
     @classmethod
     def post(cls, body):

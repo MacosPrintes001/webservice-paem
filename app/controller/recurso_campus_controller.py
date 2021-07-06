@@ -1,12 +1,12 @@
-from .base_controller import BaseHasNameController
+from .base_controller import BaseHasHorarioController
 from ..model import RecursoCampusModel
 
 
-class RecursoCampusController(BaseHasNameController):
+class RecursoCampusController(BaseHasHorarioController):
     
     @classmethod
     def get(cls, id_recurso_campus):
-        return super().get_by_id(id_recurso_campus, RecursoCampusModel)
+        return super().get(id_recurso_campus, RecursoCampusModel)
 
     @classmethod
     def post(cls, body):

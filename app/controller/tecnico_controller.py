@@ -1,11 +1,15 @@
 from ..model import TecnicoModel
-from .base_controller import BaseHasOtherIdController
+from .base_controller import BaseHasOtherIdController, BaseHasUsuarioController
 
-class TecnicoController(BaseHasOtherIdController):
+class TecnicoController(BaseHasUsuarioController, BaseHasOtherIdController):
     
     @classmethod
     def get(cls, id_tecnico):
-        return super().get_by_id(id_tecnico, TecnicoModel)
+        return super().get(id_tecnico, TecnicoModel)
+
+    @classmethod
+    def get_by_usuario(cls, usuario_id_usuario):
+        return super().get_by_usuario(usuario_id_usuario, TecnicoModel)
 
     @classmethod
     def post(cls, body, usuario):

@@ -3,7 +3,7 @@ from .curso import CursoModel
 from .disciplina import DisciplinaModel
 from .usuario import UsuarioModel
 from .campus import CampusModel
-from .base_model import BaseHasNameModel
+from .base_model import BaseHasUsuarioModel
 from datetime import date
 
 # table to relationship many to many
@@ -12,7 +12,7 @@ db.Table('docente_has_disciplina', db.Column('docente_siape', db.String(45), db.
                                     db.Column('data', db.Date, nullable=False)
                                 )
 
-class DocenteModel(BaseHasNameModel, db.Model):
+class DocenteModel(BaseHasUsuarioModel, db.Model):
     __tablename__ = "docente"
 
     id_docente = db.Column(db.Integer, primary_key=True)

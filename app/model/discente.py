@@ -2,11 +2,11 @@
 from .curso import CursoModel
 from .usuario import UsuarioModel
 from .campus import CampusModel
-from .base_model import BaseHasNameModel 
+from .base_model import BaseHasUsuarioModel 
 from ..database import db
 from app.model import usuario
 
-class DiscenteModel(BaseHasNameModel, db.Model):
+class DiscenteModel(BaseHasUsuarioModel, db.Model):
     __tablename__='discente'
 
     id_discente = db.Column(db.Integer, primary_key=True)
@@ -50,17 +50,17 @@ class DiscenteModel(BaseHasNameModel, db.Model):
             ).filter_by(id_campus=self.campus_id_campus).first()
 
             return {
-                'id_discente': self.id_discente, 
-                'nome': self.nome,
-                'matricula': self.matricula,
-                'entrada':self.entrada,
-                'semestre':self.semestre,
-                'endereco':self.endereco,
-                'grupo_risco':self.grupo_risco,
-                'status_covid':self.status_covid,
-                'status_permissao':self.status_permissao,
-                'usuario': usuario_dict if usuario_dict else "null",
-                'curso': curso.nome if curso else "null",
+                "id_discente": self.id_discente, 
+                "nome": self.nome,
+                "matricula": self.matricula,
+                "entrada":self.entrada,
+                "semestre":self.semestre,
+                "endereco":self.endereco,
+                "grupo_risco":self.grupo_risco,
+                "status_covid":self.status_covid,
+                "status_permissao":self.status_permissao,
+                "usuario": usuario_dict if usuario_dict else "null",
+                "curso": curso.nome if curso else "null",
                 "campus": campus.nome if campus else "null"
             }
     
