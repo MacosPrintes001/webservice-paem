@@ -119,7 +119,12 @@ class BaseHasUsuarioController(BaseHasNameController):
 
     @classmethod
     def get_by_usuario(cls, usuario_id_usuario, Model):
-        return Model.find_by_id_usuario(usuario_id_usuario)
+
+        model_queried = Model.find_by_id_usuario(usuario_id_usuario)
+        if model_queried:
+            return model_queried.serialize(), OK
+            
+        return {"message":"usuario not found"}, NOT_FOUND_REQUEST
 
 #class to randle user that has matricula or siape
 class BaseHasOtherIdController(BaseHasNameController):

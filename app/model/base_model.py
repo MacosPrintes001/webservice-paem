@@ -64,4 +64,4 @@ class BaseHasUsuarioModel(BaseHasNameModel):
 
     @classmethod
     def find_by_id_usuario(cls, usuario_id_usuario):
-       return cls.query.filter_by(usuario_id_usuario=usuario_id_usuario)
+       return cls.query.filter_by(usuario_id_usuario=usuario_id_usuario).first()
