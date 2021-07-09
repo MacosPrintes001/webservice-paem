@@ -1,11 +1,12 @@
 from datetime import datetime
 import telebot  # API do Telegram
 import os
+from telebot.apihelper import send_message
 
 from telebot.util import is_string
 
 from dados_bot import btoken
-import conexao_bot as conBot
+import conexao_bot as con_Bot
 
 
 token = btoken
@@ -94,19 +95,16 @@ def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pr
         bot.register_next_step_handler(new_msg, step_for_you)
 
 
-#@bot.message_handler(commands=['agendar'])  
-
 def schedule(message):# tarefa de agendamento de espaço
     para_quem = aluno.para_si
     chat_id = message.chat.id    
     cpf = str(message.text)
     if para_quem is not None:# teste para saber se apessoa fez a etapa de dizer para quem é o acesso
         try:            
-            "comando, cpf = map(str, mensagem.split(' '))"
             if cpf is not None: 
                 bot.reply_to(message, "certo aguarde um momento...")
 
-                resp = conBot.login(cpf)
+                resp = con_Bot.login(cpf)
 
                 if resp: #Teste para saber se o CPF está no bd
                         setattr(aluno, 'cpf', cpf)
@@ -118,10 +116,12 @@ def schedule(message):# tarefa de agendamento de espaço
                         campus = bot.send_message(chat_id, "Ok, para qual campus você quer fazer a reserva?")
                         bot.register_next_step_handler(campus, ask_campus)
                 elif resp == "erro":
-                    bot.send_message(chat_id, "Houve um erro de conexão, tente enviar o CPF novamente, caso o erro persista entre em contato conosco")
+                    resp_user = bot.send_message(chat_id, "Houve um erro de conexão, tente enviar o CPF novamente, caso o erro persista entre em contato conosco")
+                    bot.register_next_step_handler(resp_user, schedule)
                 else:
-                    bot.send_message(chat_id, "Olha, eu não achei essa pessoa no banco de dados, verifique se você digitou certo e tente de novo") 
-                    bot.send_message(chat_id, f"Ou então, caso você não tenha uma conta basta acessar o link e criar uma antes de poder prosseguir {link}" )
+                    resp_user = bot.send_message(chat_id, "Olha, eu não achei essa pessoa no banco de dados, verifique se você digitou certo e tente de novo ou \
+                                            então, caso você não tenha uma conta basta acessar o link e criar uma antes de poder prosseguir {link}")
+                    bot.register_next_step_handler(resp_user, schedule)
 
         except Exception:
             bot.send_message(chat_id, "Opa, parece que você digitou algo errado, digite novamente o CPF.")
@@ -135,7 +135,8 @@ def ask_campus(message):
     campus = str(message.text)
     try:
         if campus is not None: #verificar de qual campus a pessoa é
-            #/ pegar salas de fomra dinamica
+
+            #/ pegar salas de forma dinamica
             recurso = bot.send_message(chat_id, f"Certo qual sala você quer reservar? Digite o número da opção que deseja{os.linesep}"
                                                     "1- Laboratório de ensino em Biologia\n"
                                                     "2- Laboratório multidisciplinar de biologia II\n"
@@ -158,13 +159,16 @@ def agendar_recurso(message):
                     "4": "Biblioteca",
                     "5": "Area_Comum",
                     "6": "Auditorio"}
+
         #/verificar como eu vou resetar para liberar as vagas
         if texto in recursos:
                 setattr(aluno, 'espaco', texto)
                 data = bot.send_message(chat_id, "Agora eu preciso que me diga a data que quer agendar no seguinte formato dd/mm/yyyy")
                 bot.register_next_step_handler(data, my_date)
         else:
-            new_msg = bot.send_message(chat_id, "ERRO, digite um valor valido:\n"
+            bot.send_message(chat_id, "ERRO, digite um valor valido\n")
+
+            new_msg = bot.send_message(chat_id,"Digite o numero da opção que você deseja:"
                                                 "1- Laboratório de ensino em Biologia\n"
                                                 "2- Laboratório multidisciplinar de biologia II\n"
                                                 "3- Laboratório de Informática\n"
@@ -173,7 +177,9 @@ def agendar_recurso(message):
                                                 "6- Auditorio")
             bot.register_next_step_handler(new_msg, agendar_recurso)
     except:
-        new_msg = bot.send_message(chat_id, "ERRO, digite um valor valido:\n"
+        bot.send_message(chat_id, "ERRO, digite um valor valido\n")
+
+        new_msg = bot.send_message(chat_id,"Digite o numero da opção que você deseja:"
                                             "1- Laboratório de ensino em Biologia\n"
                                             "2- Laboratório multidisciplinar de biologia II\n"
                                             "3- Laboratório de Informática\n"
@@ -188,10 +194,10 @@ def agendar_recurso(message):
 def my_date(message): # comando data
     para_quem = aluno.para_si
     chat_id = message.chat.id
-    mensagem = str(message.text)
+    data = str(message.text)
     if para_quem is not None:  # teste para saber se apessoa fez a etapa de dizer para quem é o acesso
             try:
-                comando, data = map(str, mensagem.split(' '))
+                #comando, data = map(str, mensagem.split(' '))
                 test_data = data_valida(data, chat_id)
                 if test_data:
                     data = str(data).replace("/", "-") #troco o separador da data antes de guardar ela
@@ -268,14 +274,14 @@ def verific_fim(message):
         setattr(aluno, 'telefone', phone)
         bot.send_message(chat_id, "Certo, sua reserva ja foi agendada, obrigado por usar este serviço")
         
-        print(aluno.nome)
-        print(aluno.cpf)
-        print(aluno.data)
-        print(aluno.espaco)
-        print(aluno.para_si)
-        print(aluno.telefone)
-        print(aluno.hora_inicio)
-        print(aluno.hora_fim)
+        print("Nome: ", aluno.nome)
+        print("CPF: ", aluno.cpf)
+        print("Data: ", aluno.data)
+        print("id_espaço: ", aluno.espaco)
+        print("para_si: ", aluno.para_si)
+        print("telefone: ", aluno.telefone)
+        print("H_inicio: ", aluno.hora_inicio)
+        print("H_fim", aluno.hora_fim)
         
         #/ salvar no bd
 
