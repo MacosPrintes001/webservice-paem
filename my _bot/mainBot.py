@@ -2,8 +2,11 @@ from datetime import datetime
 import telebot  # API do Telegram
 import os
 
-from conexao_bot import login
+from telebot.util import is_string
+
 from dados_bot import btoken
+import conexao_bot as conBot
+
 
 token = btoken
 bot = telebot.TeleBot(token)
@@ -46,10 +49,10 @@ tele_user = Pessoa()
 @bot.message_handler(commands=['start'])  # comando start
 def send_welcome(message):
     msg = bot.reply_to(message, "Olá, eu sou o bot de agendamento da UFOPA! para continuar você precisar ter uma conta, você possui tal conta? Responda com Sim ou Não ")
-    bot.register_next_step_handler(msg, acount_verif)
+    bot.register_next_step_handler(msg, acount_verifc)
 
 
-def acount_verif(message):
+def acount_verifc(message):
     try:
         chat_id = message.chat.id
         msg = str(message.text).lower()
@@ -62,10 +65,10 @@ def acount_verif(message):
             bot.send_message(chat_id, link)
         else:
             resp = bot.send_message(chat_id, "Desculpe não entendi oque disse. Você já possui uma conta de usuario? Responda com Sim ou Não")
-            bot.register_next_step_handler(resp, acount_verif)
+            bot.register_next_step_handler(resp, acount_verifc)
     except:
         resp = bot.send_message(chat_id, "Desculpe não entendi oque disse. Você já possui uma conta de usuario? Responda com Sim ou Não")
-        bot.register_next_step_handler(resp, acount_verif)
+        bot.register_next_step_handler(resp, acount_verifc)
     
 
 def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pra ela
@@ -74,14 +77,12 @@ def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pr
         msg = str(message.text).lower()
         if msg == "sim":
             setattr(aluno, 'para_si', 1)
-            bot.send_message(chat_id, "Certo, vou precisar do seu CPF. \
-                                      Basta digitar /agendar + CPF. Segue exemplo:")
-            bot.send_message(chat_id, "Ex: /agendar 03022504472")
+            msg = bot.send_message(chat_id, "Certo, vou precisar do seu CPF.")
+            bot.register_next_step_handler(msg, schedule)
         elif msg == "não":
             setattr(aluno, 'para_si', 0)
-            bot.send_message(chat_id, "Ok, vou precisar do CPF da pessoa para quem devo registrar. "
-                                       "Basta digitar /agendar + CPF. Segue exemplo:")
-            bot.send_message(chat_id, "Ex: /agendar 03022504472")
+            msg = bot.send_message(chat_id, "Ok, vou precisar do CPF da pessoa para quem devo registrar.")
+            bot.register_next_step_handler(msg, schedule)
         else:
             new_msg = bot.send_message(chat_id, "Desculpe, não entendi o que você disse,\
                                                  este atendimento é para você mesmo? responda com Sim ou Não esse")
@@ -93,45 +94,60 @@ def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pr
         bot.register_next_step_handler(new_msg, step_for_you)
 
 
-@bot.message_handler(commands=['agendar'])  # tarefa de agendamento de espaço
-def schedule(message):
+#@bot.message_handler(commands=['agendar'])  
+
+def schedule(message):# tarefa de agendamento de espaço
     para_quem = aluno.para_si
     chat_id = message.chat.id    
+    cpf = str(message.text)
     if para_quem is not None:# teste para saber se apessoa fez a etapa de dizer para quem é o acesso
-        try:
-            mensagem = message.text
-            comando, cpf = map(str, mensagem.split(' '))
+        try:            
+            "comando, cpf = map(str, mensagem.split(' '))"
             if cpf is not None: 
                 bot.reply_to(message, "certo aguarde um momento...")
 
-                resp, nome_aluno, id_aluno = login(cpf)
+                resp = conBot.login(cpf)
 
                 if resp: #Teste para saber se o CPF está no bd
                         setattr(aluno, 'cpf', cpf)
-                        tele_User = f"id = {message.from_user.id} nome = {message.from_user.first_name} {message.from_user.last_name}"# salvando informações da pessoa que está reservando
+                        # salvando informações da pessoa que está reservando
+                        tele_User = f"id = {message.from_user.id} nome = {message.from_user.first_name} {message.from_user.last_name}"
                         setattr(tele_user, 'pessoa_telegram', tele_User)
 
-                        recurso = bot.send_message(chat_id, f"Certo qual sala você quer reservar? Digite o número da opção que deseja{os.linesep}"
-                                            "1- Laboratório de ensino em Biologia\n"
-                                            "2- Laboratório multidisciplinar de biologia II\n"
-                                            "3- Laboratório de Informática\n"
-                                            "4- Biblioteca\n"
-                                            "5- Area Comum de Convivência\n"
-                                            "6- Auditorio")
-                        bot.register_next_step_handler(recurso, agendar_recurso)
+                        #/provavelmente vou precisar acessar a rota campus
+                        campus = bot.send_message(chat_id, "Ok, para qual campus você quer fazer a reserva?")
+                        bot.register_next_step_handler(campus, ask_campus)
+                elif resp == "erro":
+                    bot.send_message(chat_id, "Houve um erro de conexão, tente enviar o CPF novamente, caso o erro persista entre em contato conosco")
                 else:
-                    bot.send_message(chat_id,
-                                    "Olha, eu não achei essa pessoa no banco de dados, "
-                                    "verifique se você digitou certo e tente de novo") 
-                    bot.send_message(chat_id, f"Ou então, caso você não tenha uma conta basta acessar \
-                                                o link e criar uma antes de poder prosseguir {link}" )
+                    bot.send_message(chat_id, "Olha, eu não achei essa pessoa no banco de dados, verifique se você digitou certo e tente de novo") 
+                    bot.send_message(chat_id, f"Ou então, caso você não tenha uma conta basta acessar o link e criar uma antes de poder prosseguir {link}" )
+
         except Exception:
-            bot.send_message(chat_id, f"Opa, parece que você digitou algo errado,"
-                                      f" tente de novo, siga o exemplo{os.linesep}"
-                                      f"/agendar 03022504472")
+            bot.send_message(chat_id, "Opa, parece que você digitou algo errado, digite novamente o CPF.")
     else:
         bot.send_message(chat_id, "Desculpe estão faltando alguns dados,\n envie /start para iniciar o atendimento")
-    
+
+
+def ask_campus(message):
+    #/passar dados de forma dinamica para o usuario
+    chat_id = message.chat.id
+    campus = str(message.text)
+    try:
+        if campus is not None: #verificar de qual campus a pessoa é
+            #/ pegar salas de fomra dinamica
+            recurso = bot.send_message(chat_id, f"Certo qual sala você quer reservar? Digite o número da opção que deseja{os.linesep}"
+                                                    "1- Laboratório de ensino em Biologia\n"
+                                                    "2- Laboratório multidisciplinar de biologia II\n"
+                                                    "3- Laboratório de Informática\n"
+                                                    "4- Biblioteca\n"
+                                                    "5- Area Comum de Convivência\n"
+                                                    "6- Auditorio")
+            bot.register_next_step_handler(recurso, agendar_recurso)
+    except:
+        camp = bot.send_message(chat_id, "Não entendi, para qual campus você quer fazer a reserva?")
+        bot.register_next_step_handler(camp, ask_campus)
+
 def agendar_recurso(message):
     try:
         chat_id = message.chat.id
@@ -143,15 +159,10 @@ def agendar_recurso(message):
                     "5": "Area_Comum",
                     "6": "Auditorio"}
         #/verificar como eu vou resetar para liberar as vagas
-        #recursos[0] = 10
         if texto in recursos:
-            #if recursos[texto] is not 0:
-                #recursos[texto]-=1
                 setattr(aluno, 'espaco', texto)
-                bot.send_message(chat_id, "Agora eu preciso que me diga a data que quer agendar, basta digitar /data dd/mm/yyyy")
-            #else:
-                #bot.send_message(chat_id, "Desculpe este local já esta cheio")
-        
+                data = bot.send_message(chat_id, "Agora eu preciso que me diga a data que quer agendar no seguinte formato dd/mm/yyyy")
+                bot.register_next_step_handler(data, my_date)
         else:
             new_msg = bot.send_message(chat_id, "ERRO, digite um valor valido:\n"
                                                 "1- Laboratório de ensino em Biologia\n"
@@ -173,8 +184,8 @@ def agendar_recurso(message):
 
 
 
-@bot.message_handler(commands=['data'])  # comando data
-def date(message):
+#@bot.message_handler(commands=['data']) 
+def my_date(message): # comando data
     para_quem = aluno.para_si
     chat_id = message.chat.id
     mensagem = str(message.text)

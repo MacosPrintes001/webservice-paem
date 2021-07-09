@@ -5,6 +5,9 @@ from requests.auth import HTTPBasicAuth
 
 token = ' '
 
+#/ pergar o nome e id do discente atraves cpf
+#/ saber de qual campus a pessoa é
+
 def login(cpf):
      global token
      try:
@@ -16,7 +19,7 @@ def login(cpf):
           token = json.loads(response.content).get('token')
 
           if token is None:
-               return False, ' ', ' '
+               return False
           else: #se retornar um token, acesso a rota usuarios
                res = True
                bearer_token = f"Bearer {token}"
@@ -26,8 +29,11 @@ def login(cpf):
                headers=payload
                )
                print(res.json())
+               return res
                #/pegar id e nome do usuario
      except EOFError:#problea de conexão
-          pass
-    
-login(11111111111)
+          return "erro"
+
+def search_campus(campus):
+     pass
+#login(11111111111)
