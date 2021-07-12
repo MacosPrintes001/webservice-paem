@@ -53,7 +53,7 @@ def send_welcome(message):
     bot.register_next_step_handler(msg, acount_verifc)
 
 
-def acount_verifc(message):
+def acount_verifc(message): #saber se a pessoa tem já tem conta
     try:
         chat_id = message.chat.id
         msg = str(message.text).lower()
@@ -85,13 +85,13 @@ def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pr
             msg = bot.send_message(chat_id, "Ok, vou precisar do CPF da pessoa para quem devo registrar.")
             bot.register_next_step_handler(msg, schedule)
         else:
-            new_msg = bot.send_message(chat_id, "Desculpe, não entendi o que você disse,\
-                                                 este atendimento é para você mesmo? responda com Sim ou Não esse")
+            new_msg = bot.send_message(chat_id, "Desculpe, não entendi o que você disse, "
+                                                 "este atendimento é para você mesmo? responda com Sim ou Não esse")
             bot.register_next_step_handler(new_msg, step_for_you)
 
     except EOFError:
-        new_msg = bot.send_message(message.chat.id, "Desculpe, não entendi o que você disse, \
-                                                    este atendimento é para você mesmo? responda com Sim ou Não esse 2")
+        new_msg = bot.send_message(message.chat.id, "Desculpe, não entendi o que você disse, "
+                                                    "este atendimento é para você mesmo? responda com Sim ou Não esse 2")
         bot.register_next_step_handler(new_msg, step_for_you)
 
 
@@ -112,15 +112,17 @@ def schedule(message):# tarefa de agendamento de espaço
                         tele_User = f"id = {message.from_user.id} nome = {message.from_user.first_name} {message.from_user.last_name}"
                         setattr(tele_user, 'pessoa_telegram', tele_User)
 
-                        #/provavelmente vou precisar acessar a rota campus
+                       """ #/provavelmente vou precisar acessar a rota campus, para puxar os campus e enviar para o usuario     ####CONTINUAR DAQUI####
                         campus = bot.send_message(chat_id, "Ok, para qual campus você quer fazer a reserva?")
+                        """
+
                         bot.register_next_step_handler(campus, ask_campus)
                 elif resp == "erro":
                     resp_user = bot.send_message(chat_id, "Houve um erro de conexão, tente enviar o CPF novamente, caso o erro persista entre em contato conosco")
                     bot.register_next_step_handler(resp_user, schedule)
                 else:
-                    resp_user = bot.send_message(chat_id, "Olha, eu não achei essa pessoa no banco de dados, verifique se você digitou certo e tente de novo ou \
-                                            então, caso você não tenha uma conta basta acessar o link e criar uma antes de poder prosseguir {link}")
+                    resp_user = bot.send_message(chat_id, "Olha, eu não achei essa pessoa no banco de dados, verifique se você digitou certo "
+                                                            f"e tente de novo ou então, caso você não tenha uma conta basta acessar o link e criar uma antes de poder prosseguir {link}")
                     bot.register_next_step_handler(resp_user, schedule)
 
         except Exception:
@@ -130,10 +132,11 @@ def schedule(message):# tarefa de agendamento de espaço
 
 
 def ask_campus(message):
-    #/passar dados de forma dinamica para o usuario
     chat_id = message.chat.id
     campus = str(message.text)
     try:
+
+
         if campus is not None: #verificar de qual campus a pessoa é
 
             #/ pegar salas de forma dinamica
