@@ -1,4 +1,7 @@
-from datetime import datetime
+from datetime import date, datetime
+import datetime
+import json
+from logging import ERROR, error
 import requests
 import telebot
 from telebot.apihelper import send_message
@@ -18,7 +21,6 @@ class Alunos():
         self.hora_fim = None #para solicitação
         self.nome = None #para solicitação
         self.telefone = None #para solicitação
-
         self.campus = None
         self.cpf = None #criar token e achar id usuario
         self.matricula= None #usado para achar nome e id aluno
@@ -26,7 +28,6 @@ class Alunos():
         self.id_discente = None #para solicitação
         self.id_usuario = None #para solicitação
         self.id_recurso = None
-        
         
 
 aluno = Alunos()
@@ -43,9 +44,8 @@ def inicio(message):
                           "Horario requerido\n"
                           "Local desejado\n"
                           "Nº do seu telefone")
-    #pegar campus
 
-    e = bot.send_message(chat_id, "Ex:\nSim\n03051107032\n2019004525\n24/08/2022\n08:00 as 10:00\nBiblioteca\n"
+    e = bot.send_message(chat_id, "Ex:\nSim\n030.511.070-32\n2019004525\n24/08/2022\n08:00 as 10:00\nBiblioteca\n"
                                   "(93)992991452560")
 
     bot.register_next_step_handler(e, check_dados)
@@ -55,52 +55,80 @@ def check_dados(message):
     chat_id = message.chat.id
     mensagem = str(message.text)
     bot.send_message(chat_id, "Certo, aguarde um momento enquanto eu confiro os dados...")
+    data_verific = ""
 
     try:
         para_si, cpf, matricula, data, hora, recurso, telefone = mensagem.split('\n')
 
+        print("splitei")
+
         if para_si is not None and cpf is not None and matricula is not None and \
             data is not None and hora is not None and telefone is not None and recurso is not None: #saber se não há dados vazios
             
+            print("entrei if dados vazios")
+
             data =str(data)
             para_si = str(para_si)
-            cpf = str(cpf) 
+            cpf = str(cpf)
             matricula = str(matricula) 
             hora = str(hora) 
             recurso = str(recurso) 
             telefone = str(telefone)
 
-            data_verific = data_valida(data, chat_id) #verificação data valida
-            if data_verific:
-                try:
-                    resp, nome, id_discente, campus, id_recurso, id_usuario, token = conect.login(cpf, matricula, recurso)
+            print("tranformei tudo em string")
 
+            dv = data_valida(data) #verificação data valida
+
+            print("Result DV: ", dv)
+
+            print("tipo DV: ", type(dv))
+
+            if dv == True:
+                print("entrei if data valida")
+                try:
+                    print("tentei conexão")
+                    resp, nome, id_discente, campus, id_recurso, id_usuario, token = conect.login(cpf, matricula, recurso)
+                    print("recebi dados")
+
+                    print("+++++++++++++++"
+                    "DADOS LOGIN\n"
+                    f"RESP: {resp}\nID_DISCENTE: {id_discente}\nCAMPUS: {campus}\nID_RECURSO: {id_recurso}\nID_USUARIO: {id_usuario}"
+                    "+++++++++++++++++++++++++++")
                     if resp:
+                        print("resp não foi nula")
                         prepara_agendar(para_si, campus, cpf, matricula, data, hora, recurso,\
                                 telefone,nome, id_discente, id_usuario,id_recurso, token, chat_id)
                         
                     else:
+
+                        print("ERRO DE CONEXÃO")
+
                         bot.send_message(chat_id, "Houve algum erro no servidor, verifique se você enviou o cpf ou matricula certos pois eu preciso que você envie tudo corretamente, igual ao "
                                                     "indicado, Digite SIM para tentar novamente, ou NÂO para encerrar o acesso.")
                 except Exception:
-                    bot.send_message(chat_id, "Houve um erro no servidor digite /start e tente novamente")
+                    print("ERRO SERVIDOR")
+                    bot.send_message(chat_id, "Houve um erro no servidor digite /start e tente novamente, e não esqueça de verificar se os dados estão corretos")
+
             else:
-                bot,send_message(chat_id, "Parece que a data que você passou não é valida, tente "
+                print("DATA INVALIDA")
+                bot.send_message(chat_id, "Parece que a data que você passou não é valida, tente "
                                           "novamente com uma data valida. Basta clicar em /start para tentar de novo")
         
         else:
+            print("FALTA DE DADOS")
             bot.send_message(chat_id, "Olha parece que faltaram alguns dados, envie /start e tente de novo")
 
     except Exception:
-        print("ERRO")
-        bot.send_message(chat_id, "Houve algum erro, eu preciso que você envie todos os dados corretamente, igual ao "
-                                      "indicado, digite /start e envie os dados novamente")
+        print(Exception)
+        print("ERRO CHECK DADOS")
+        bot.send_message(chat_id, "Houve um erro, verifique se você enviou todos os dados de forma correta")
+        bot.send_message(chat_id, "Precione /start e tente novamente")
 
 
 
 def prepara_agendar(para_si, campus, cpf, matricula, data, hora, 
-recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id):
-    bot.send_message(chat_id, f"Falta pouco, tenha paciencia....") #Fazendo ultimas verificações e criando classe aluno
+recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id): #Fazendo ultimas verificações e criando classe aluno
+    bot.send_message(chat_id, f"Falta pouco, tenha paciencia....")
     erro = False
     try:
         try:
@@ -111,10 +139,10 @@ recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id):
         except Exception:
             erro = True
             bot.send_message(chat_id, "Deu erro no horario solicitado, clique em /start e tente novamente")
+
         try:
             data = str(data).replace("/", "-")
-            setattr(aluno, 'data', data)
-        except:
+        except EOFError:
             erro = True            
             bot.send_message(chat_id, "Houve um erro com a data informada, a data deve ser enviada com a barra / como separador e o ano não deve ser encurtado digite /start e tente novamente")
         
@@ -123,6 +151,7 @@ recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id):
         elif str(para_si).lower() == "não":
             setattr(aluno, 'para_si', -1)   
         else:
+            bot.send_message(chat_id, "Não entendi se o atendimento é para você, clique em /start e tente denovo")
             erro = True
 
         if erro is False:
@@ -136,56 +165,40 @@ recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id):
             setattr(aluno, 'recurso', recurso)
             setattr(aluno, 'id_recurso', id_recurso)
 
-            dados_aluno = {"para_si": aluno.para_si,
-                        "data": aluno.data,
-                        "hora_inicio": f"{aluno.hora_inicio}:00",
-                        "hora_fim": f"{aluno.hora_fim}:00",
-                        "status_acesso": 1,
-                        "nome": aluno.nome,
-                        "fone": aluno.telefone,
-                        "cpf": aluno.cpf,
-                        "visitante": "NULL",
-                        "id_usuario": aluno.id_usuario,
-                        "discente_id_discente": aluno.id_discente,
-                        "recurso_campus_id_recurso_campus": aluno.id_recurso}
-            print(dados_aluno)
-            dados_aluno_test = {"para_si": 1,
-                                "data":"2021-06-26",
-                                "hora_inicio":"02:00:00",
-                                "hora_final":"03:00:00",
-                                "status_acesso": 1,
-                                "nome":"Matheus Carvalho",
-                                "fone":"NULL",
-                                "cpf":"12345678910",
-                                "visitante":"NULL",
-                                "usuario_id_usuario":1,
-                                "discente_id_discente":1,
-                                "recurso_campus_id_recurso_campus":7}
+            dados_aluno = {"para_si": int(aluno.para_si),
+                            "data": aluno.data,
+                            "hora_inicio": f"{aluno.hora_inicio}:00",
+                            "hora_fim": f"{aluno.hora_fim}:00",
+                            "status_acesso": 1,
+                            "nome": aluno.nome,
+                            "fone": aluno.telefone,
+                            "cpf": aluno.cpf,
+                            "usuario_id_usuario": int(aluno.id_usuario),
+                            "discente_id_discente": int(aluno.id_discente),
+                            "recurso_campus_id_recurso_campus": aluno.id_recurso}
             agendar(dados_aluno, token, chat_id)
-            #print(dados_aluno)
-            #bot.send_message(chat_id, "TUDO CERTO")
+        
     except Exception:
         pass
       
 
 def agendar(lista, token, chat_id):
+    print(lista)
 
-    bearer_token = f"Bearer {token}"
-    payload = {"Authorization": bearer_token}
-    resp = requests.post(url=f"http://localhost:5000/api.paem/solicitacoes_acessos/solicitacao_acesso", headers=payload, data=lista)
+    headers = {"Authorization":f"Bearer {token}", "Content-Type": "application/json"}
+    url = "http://webservicepaem-env.eba-mkyswznu.sa-east-1.elasticbeanstalk.com/api.paem/"
+    resp = requests.post(url+"/solicitacoes_acessos/solicitacao_acesso", data=json.dumps(lista),headers=headers)
     
     res = str(resp)[10:15]
 
     print(res)
-
+    
     if res == "[201]":
-        print(f"Para_si= {aluno.para_si}\nCampus= {aluno.campus}\nCPF= {aluno.cpf}\nMatricula= {aluno.matricula}\nData= {aluno.data}\nH_ini= {aluno.hora_inicio}"
-            f"H_fim= {aluno.hora_fim}\nRecurso= {aluno.recurso}\nTelefone= {aluno.telefone}\nNome= {aluno.nome}\nID_DISCENTE= {aluno.id_discente}\nId_usuario= {aluno.id_usuario}\nId_recurso: {aluno.id_recurso}")
-
+        print(lista)
         bot.send_message(chat_id, f"Certo, a reserva de {aluno.nome} foi feita com sucesso")
 
     elif res == "[500]":
-        bot.send_message(chat_id, "ESSE DISCENTE JÁ RESERVOU ESSA SALA!!")
+        bot.send_message(chat_id, "Esse discente já reservou essa sala, ou o horario solicitado não está disponivel para atendimento")
     
     elif res == "[400]":
         bot.send_message(chat_id, "ERRO NO SERVIDOR")
@@ -193,19 +206,29 @@ def agendar(lista, token, chat_id):
     elif res == "[405]":
         bot.send_message(chat_id, "ERRO NO METODO")
     
-#MENSAGEM PRA EU DO FUTURO# ENTRAR NA ROTA DE SOLICVITAÇÃO ACESSO E REGISTRAR A SOLICITAÇÃO
 
-
-
-def data_valida(data_user, chat_id):  # validando a data enviada
+def data_valida(data_user):  # validando a data enviada
     try:
-        data_recebida = datetime.strptime(data_user, "%d/%m/%Y")
-        if data_recebida >= datetime.today():
-            return True 
+        resp = ""
+        data_ = str(data_user).split("/")
+
+        dia = int(data_[0])
+        mes = int(data_[1])
+        ano = int(data_[2])
+
+        newDate = datetime.date(ano, mes, dia)
+        print(newDate, " ", date.today())
+        if newDate >= date.today():
+            resp = True
         else:
-            return False
-    except ValueError:
-        return False
+            resp = False
+        
+        print("resp que enviei: ", resp)
+
+        return resp
+
+    except Exception:
+        print("deu merda")
 
 
 @bot.message_handler(func=lambda m : True )

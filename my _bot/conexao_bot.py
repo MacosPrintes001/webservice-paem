@@ -4,9 +4,9 @@ import json
 from requests.auth import HTTPBasicAuth
 
 token = ' '
-rota_base = 'http://localhost:5000/api.paem'
-
+rota_base = 'http://webservicepaem-env.eba-mkyswznu.sa-east-1.elasticbeanstalk.com/api.paem/'
 rec = ' '
+
 def login(cpf, matricula, recuso):
     global token, rec
     rec = recuso
@@ -30,6 +30,7 @@ def login(cpf, matricula, recuso):
             return False, '', '', ''
 
     except EOFError:  # problema de conexão
+        print("ERRO NA CONEXÃO")
         return False, '', '', '', '', ''
 
 
@@ -58,6 +59,7 @@ def search_id(cpf, matricula):
                     return False, '', '', '','',''
 
     except EOFError:
+        print("ERRO SEARCH_ID< EM CONEXÃO")
         return False, '', '', '','',''
 
 
@@ -78,6 +80,7 @@ def search_name(matricula):
                     return True, nome, id_discente, campus, id_recurso
 
     except Exception:
+        print("ERRO SEARCH_NAME< EM CONEXÃO")
         return False, '', '','',''
 
 
@@ -105,6 +108,7 @@ def data_campus(id_discente):
         print("Recurso não encontrado")
         return False, '', ''
     except Exception:
+        print("ERRO DATA_CAMPUS< CONEXÃO")
         return False, '', ''
  
 """recuros = "Area Comum de Convivência"
