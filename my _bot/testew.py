@@ -55,7 +55,6 @@ def check_dados(message):
     chat_id = message.chat.id
     mensagem = str(message.text)
     bot.send_message(chat_id, "Certo, aguarde um momento enquanto eu confiro os dados...")
-    data_verific = ""
 
     try:
         para_si, cpf, matricula, data, hora, recurso, telefone = mensagem.split('\n')
@@ -142,6 +141,7 @@ recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id): #F
 
         try:
             data = str(data).replace("/", "-")
+            setattr(aluno, 'data', data)
         except EOFError:
             erro = True            
             bot.send_message(chat_id, "Houve um erro com a data informada, a data deve ser enviada com a barra / como separador e o ano não deve ser encurtado digite /start e tente novamente")
@@ -236,4 +236,4 @@ def indef(message):
     chat_id = message.chat.id
     bot.send_message(chat_id, "Desculpe não entendi o que disse, clique em /start para fazer uma solicitação de acesso")
         
-bot.polling(none_stop=True, interval=5, timeout=20)
+bot.polling(none_stop=True, interval=5, timeout=False)
