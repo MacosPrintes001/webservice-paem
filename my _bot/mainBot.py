@@ -1,311 +1,232 @@
-from datetime import datetime
-import telebot  # API do Telegram
-import os
+from datetime import date, datetime
+import datetime
+import json
+from logging import ERROR, error
+import requests
+import telebot
 from telebot.apihelper import send_message
+import dados_bot
+import conexao_bot as conect
 
-from telebot.util import is_string
+token = dados_bot.btoken
 
-from dados_bot import btoken
-import conexao_bot as con_Bot
-
-
-token = btoken
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot(token, threaded=True)
 
 
-"""
-Significado dos comentarios
-
-#/ -> coisas a fazer
-
-# -> explicação do que faz
-
-"""
-
-link = "https://www.linkDoCristian.com"
-
-
-class Aluno:
-    #adicionar id
+class Alunos():
     def __init__(self):
-        self.nome = None
         self.para_si = None
         self.data = None
         self.hora_inicio = None
         self.hora_fim = None
-        self.espaco = None
+        self.nome = None
         self.telefone = None
+        self.campus = None
         self.cpf = None
+        self.matricula= None
+        self.recurso = None
+        self.id_discente = None
+        self.id_usuario = None
+        self.id_recurso = None
+        
+
+aluno = Alunos()
+
+@bot.message_handler(commands=['start'])
+def inicio(message):
+    chat_id = message.chat.id
+    bot.reply_to(message, "Olá, sou o Bot de agendamento da UFOPA, para fazer uma socitação de acesso,"
+                          " basta enviar os seguintes dados NA ORDEM PEDIDA:\n\n"
+                          "A solicitação de agendamento é para você?\n"
+                          "CPF\n"
+                          "Nº da Matricula\n"
+                          "data que quer agendar\n"
+                          "Horario requerido\n"
+                          "Local desejado\n"
+                          "Nº do seu telefone")
+
+    e = bot.send_message(chat_id, "Ex:\nSim\n030.511.070-32\n2019004525\n24/08/2022\n08:00 as 10:00\nBiblioteca\n"
+                                  "(93)992991452560")
+
+    bot.register_next_step_handler(e, check_dados)
 
 
-class Pessoa:
-    def __init__(self):
-        self.pessoa_telegram = None
+def check_dados(message):
+    chat_id = message.chat.id
+    mensagem = str(message.text)
+    bot.send_message(chat_id, "Certo, aguarde um momento enquanto eu confiro os dados...")
 
-
-aluno = Aluno()
-tele_user = Pessoa()
-
-
-@bot.message_handler(commands=['start'])  # comando start
-def send_welcome(message):
-    user = message.from_user.id
-    print(user)
-    msg = bot.reply_to(message, "Olá, eu sou o bot de agendamento da UFOPA! para continuar você precisar ter uma conta, você possui tal conta? Responda com Sim ou Não ")
-    bot.register_next_step_handler(msg, acount_verifc)
-
-
-def acount_verifc(message): #saber se a pessoa tem já tem conta
     try:
-        chat_id = message.chat.id
-        msg = str(message.text).lower()
-        if msg == "sim":
-            resp = bot.send_message(chat_id, "Certo, esse atendimento é para você mesmo?\n Responda com sim ou não")
-            bot.register_next_step_handler(resp, step_for_you)
-        elif msg == "não":
-            bot.send_message(chat_id, "Ok, então, você precisa criar uma conta antes de tentar reservar um espaço na UFOPA, \
-                                    vou te mandar um link pra você se cadastrar, aí depois você pode voltar aqui")
-            bot.send_message(chat_id, link)
+        para_si, cpf, matricula, data, hora, recurso, telefone = mensagem.split('\n')
+
+        print("splitei")
+
+        if para_si is not None and cpf is not None and matricula is not None and \
+            data is not None and hora is not None and telefone is not None and recurso is not None: #saber se não há dados vazios
+            
+            print("entrei if dados não vazios")
+
+            data =str(data)
+            para_si = str(para_si)
+            cpf = str(cpf)
+            matricula = str(matricula) 
+            hora = str(hora) 
+            recurso = str(recurso) 
+            telefone = str(telefone)
+
+            print("tranformei tudo em string")
+
+            dv = data_valida(data) #verificação data valida
+
+            if dv == True:
+                print("entrei if data valida")
+                try:
+                    print("tentei conexão")
+                    resp, nome, id_discente, campus, id_recurso, id_usuario, token = conect.login(cpf, matricula, recurso)
+                    print("recebi dados")
+
+                    if resp:
+                        print("resp não foi nula")
+                        prepara_agendar(para_si, campus, cpf, matricula, data, hora, recurso,\
+                                telefone,nome, id_discente, id_usuario,id_recurso, token, chat_id)
+                        
+                    else:
+
+                        print("ERRO DE CONEXÃO")
+
+                        bot.send_message(chat_id, "Houve algum erro no servidor, verifique se você enviou o cpf ou matricula certos pois eu preciso que você envie tudo corretamente, igual ao "
+                                                    "indicado, Digite SIM para tentar novamente, ou NÂO para encerrar o acesso.")
+                except Exception:
+                    print("ERRO SERVIDOR")
+                    bot.send_message(chat_id, "Houve um erro no servidor digite /start e tente novamente, e não esqueça de verificar se os dados estão corretos")
+
+            else:
+                print("DATA INVALIDA")
+                bot.send_message(chat_id, "Parece que a data que você passou não é valida, tente "
+                                          "novamente com uma data valida. Basta clicar em /start para tentar de novo")
+        
         else:
-            resp = bot.send_message(chat_id, "Desculpe não entendi oque disse. Você já possui uma conta de usuario? Responda com Sim ou Não")
-            bot.register_next_step_handler(resp, acount_verifc)
-    except:
-        resp = bot.send_message(chat_id, "Desculpe não entendi oque disse. Você já possui uma conta de usuario? Responda com Sim ou Não")
-        bot.register_next_step_handler(resp, acount_verifc)
+            print("FALTA DE DADOS")
+            bot.send_message(chat_id, "Olha parece que faltaram alguns dados, envie /start e tente de novo")
+
+    except Exception:
+        print(Exception)
+        print("ERRO CHECK DADOS")
+        bot.send_message(chat_id, "Houve um erro, verifique se você enviou todos os dados de forma correta")
+        bot.send_message(chat_id, "Precione /start e tente novamente")
+
+
+
+def prepara_agendar(para_si, campus, cpf, matricula, data, hora, 
+recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id): #Fazendo ultimas verificações e criando classe aluno
+    bot.send_message(chat_id, f"Falta pouco, tenha paciencia....")
+    erro = False
+    try:
+        try:
+            hora_inicio, _ , hora_fim = str(hora).split()
+            if hora_inicio is not None and hora_fim is not None:
+                setattr(aluno, 'hora_inicio', hora_inicio)
+                setattr(aluno, 'hora_fim', hora_fim)
+        except Exception:
+            erro = True
+            bot.send_message(chat_id, "Deu erro no horario solicitado, clique em /start e tente novamente")
+
+        try:
+            data = str(data).replace("/", "-")
+            setattr(aluno, 'data', data)
+        except EOFError:
+            erro = True            
+            bot.send_message(chat_id, "Houve um erro com a data informada, a data deve ser enviada com a barra / como separador e o ano não deve ser encurtado digite /start e tente novamente")
+        
+        if str(para_si).lower() == "sim":
+            setattr(aluno, 'para_si', 1)
+        elif str(para_si).lower() == "não":
+            setattr(aluno, 'para_si', -1)   
+        else:
+            bot.send_message(chat_id, "Não entendi se o atendimento é para você, clique em /start e tente denovo")
+            erro = True
+
+        if erro is False:
+            setattr(aluno,'campus', campus)
+            setattr(aluno, 'matricula', matricula)
+            setattr(aluno, 'nome', nome)
+            setattr(aluno, 'cpf', cpf)
+            setattr(aluno, 'id_discente', id_discente)
+            setattr(aluno, 'id_usuario', id_usuario)
+            setattr(aluno, 'telefone', telefone)
+            setattr(aluno, 'recurso', recurso)
+            setattr(aluno, 'id_recurso', id_recurso)
+
+            dados_aluno = {"para_si": int(aluno.para_si),
+                            "data": aluno.data,
+                            "hora_inicio": f"{aluno.hora_inicio}:00",
+                            "hora_fim": f"{aluno.hora_fim}:00",
+                            "status_acesso": 1,
+                            "nome": aluno.nome,
+                            "fone": aluno.telefone,
+                            "cpf": aluno.cpf,
+                            "usuario_id_usuario": int(aluno.id_usuario),
+                            "discente_id_discente": int(aluno.id_discente),
+                            "recurso_campus_id_recurso_campus": aluno.id_recurso}
+            agendar(dados_aluno, token, chat_id)
+        
+    except Exception:
+        pass
+      
+
+def agendar(lista, token, chat_id):
+    print(lista)
+
+    headers = {"Authorization":f"Bearer {token}", "Content-Type": "application/json"}
+    url = "http://webservicepaem-env.eba-mkyswznu.sa-east-1.elasticbeanstalk.com/api.paem/"
+    resp = requests.post(url+"/solicitacoes_acessos/solicitacao_acesso", data=json.dumps(lista),headers=headers)
+    
+    res = str(resp)[10:15]
+
+    print(res)
+    
+    if res == "[201]":
+        print(lista)
+        bot.send_message(chat_id, f"Certo, a reserva de {aluno.nome} foi feita com sucesso")
+
+    elif res == "[500]":
+        bot.send_message(chat_id, "Esse discente já reservou essa sala, ou o horario solicitado não está disponivel para atendimento")
+    
+    elif res == "[400]":
+        bot.send_message(chat_id, "ERRO NO SERVIDOR")
+
+    elif res == "[405]":
+        bot.send_message(chat_id, "ERRO NO METODO")
     
 
-def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pra ela
+def data_valida(data_user):  # validando a data enviada
     try:
-        chat_id = message.chat.id
-        msg = str(message.text).lower()
-        if msg == "sim":
-            setattr(aluno, 'para_si', 1)
-            bot.send_message(chat_id, "Para validar seu usuario vou precisar do seu cpf e da sua matricula.")
-            msg = bot.send_message(chat_id, "Primero mande seu CPF")
-            bot.register_next_step_handler(msg, search_token)
+        resp = ""
+        data_ = str(data_user).split("/")
 
-        elif msg == "não":
-            setattr(aluno, 'para_si', 0)
-            bot.send_message(chat_id, "Para validar seu pedido vou precisar do cpf e da matricula da pessoa para quem vou agendar")
-            msg = bot.send_message(chat_id, "Primero mande o CPF:")
-            bot.register_next_step_handler(msg, search_token)
+        dia = int(data_[0])
+        mes = int(data_[1])
+        ano = int(data_[2])
+
+        newDate = datetime.date(ano, mes, dia)
+        if newDate >= date.today():
+            resp = True
         else:
-            new_msg = bot.send_message(chat_id, "Desculpe, não entendi o que você disse, "
-                                                 "este atendimento é para você mesmo? responda com Sim ou Não esse")
-            bot.register_next_step_handler(new_msg, step_for_you)
-
-    except EOFError:
-        new_msg = bot.send_message(message.chat.id, "Desculpe, não entendi o que você disse, "
-                                                    "este atendimento é para você mesmo? responda com Sim ou Não esse 2")
-        bot.register_next_step_handler(new_msg, step_for_you)
-
-def search_token(message):
-    chat_id = message.chat.id
-    para_quem = aluno.para_si
-    cpf = str(message.text)
-
-    if para_quem is not None:# teste para saber se apessoa fez a etapa de dizer para quem é o acesso
-        try:            
-            if cpf is not None: 
-                bot.reply_to(message, "certo aguarde um momento...")
-                resp = con_Bot.login(cpf)
-
-                if resp: #Teste para saber se o CPF está no bd
-                        setattr(aluno, 'cpf', cpf)
-                        
-                        # salvando informações da pessoa que está reservando
-                        tele_User = f"id = {message.from_user.id} nome = {message.from_user.first_name} {message.from_user.last_name}"
-                        setattr(tele_user, 'pessoa_telegram', tele_User)
-
-                        matricula = bot.send_message(chat_id, "Ok, agora envie a  matricula:")
-
-                        bot.register_next_step_handler(matricula, ask_registration)
-
-                elif resp == "erro":
-                    resp_user = bot.send_message(chat_id, "Houve um erro de conexão, tente enviar o CPF novamente, caso o erro persista entre em contato conosco")
-                    bot.register_next_step_handler(resp_user, search_token)
-                else:
-                    resp_user = bot.send_message(chat_id, "Olha, eu não achei essa pessoa no banco de dados, verifique se você digitou certo "
-                                                            f"e tente de novo ou então, caso você não tenha uma conta basta acessar o link e criar uma antes de poder prosseguir {link}")
-                    bot.register_next_step_handler(resp_user, search_token)
-
-        except Exception:
-            bot.send_message(chat_id, "Opa, parece que você digitou algo errado, digite novamente o CPF.")
-    else:
-        bot.send_message(chat_id, "Desculpe estão faltando alguns dados,\n envie /start para iniciar o atendimento")
-
-def ask_registration(message):
-    pass
-
-
-def ask_campus(message):
-    chat_id = message.chat.id
-    campus = str(message.text)
-    try:
-        if campus is not None: #verificar de qual campus a pessoa é
-
-            #/ pegar salas de forma dinamica
-            recurso = bot.send_message(chat_id, f"Certo qual sala você quer reservar? Digite o número da opção que deseja{os.linesep}"
-                                                    "1- Laboratório de ensino em Biologia\n"
-                                                    "2- Laboratório multidisciplinar de biologia II\n"
-                                                    "3- Laboratório de Informática\n"
-                                                    "4- Biblioteca\n"
-                                                    "5- Area Comum de Convivência\n"
-                                                    "6- Auditorio")
-            bot.register_next_step_handler(recurso, agendar_recurso)
-    except:
-        camp = bot.send_message(chat_id, "Não entendi, para qual campus você quer fazer a reserva?")
-        bot.register_next_step_handler(camp, ask_campus)
-
-
-
-
-def agendar_recurso(message):
-    try:
-        chat_id = message.chat.id
-        texto = str( message.text)
-        recursos = {"1": "Laboratório de ensino em Biologia",
-                    "2": "Laboratório multidisciplinar de biologia II",
-                    "3": "Laboratório de Informática",
-                    "4": "Biblioteca",
-                    "5": "Area_Comum",
-                    "6": "Auditorio"}
-
-        #/verificar como eu vou resetar para liberar as vagas
-        if texto in recursos:
-                setattr(aluno, 'espaco', texto)
-                data = bot.send_message(chat_id, "Agora eu preciso que me diga a data que quer agendar no seguinte formato dd/mm/yyyy")
-                bot.register_next_step_handler(data, my_date)
-        else:
-            bot.send_message(chat_id, "ERRO, digite um valor valido\n")
-
-            new_msg = bot.send_message(chat_id,"Digite o numero da opção que você deseja:"
-                                                "1- Laboratório de ensino em Biologia\n"
-                                                "2- Laboratório multidisciplinar de biologia II\n"
-                                                "3- Laboratório de Informática\n"
-                                                "4- Biblioteca\n"
-                                                "5- Area Comum de Convivência\n"
-                                                "6- Auditorio")
-            bot.register_next_step_handler(new_msg, agendar_recurso)
-    except:
-        bot.send_message(chat_id, "ERRO, digite um valor valido\n")
-
-        new_msg = bot.send_message(chat_id,"Digite o numero da opção que você deseja:"
-                                            "1- Laboratório de ensino em Biologia\n"
-                                            "2- Laboratório multidisciplinar de biologia II\n"
-                                            "3- Laboratório de Informática\n"
-                                            "4- Biblioteca\n"
-                                            "5- Area Comum de Convivência\n"
-                                            "6- Auditorio")
-        bot.register_next_step_handler(new_msg, agendar_recurso)
-
-
-
-#@bot.message_handler(commands=['data']) 
-def my_date(message): # comando data
-    para_quem = aluno.para_si
-    chat_id = message.chat.id
-    data = str(message.text)
-    if para_quem is not None:  # teste para saber se apessoa fez a etapa de dizer para quem é o acesso
-            try:
-                #comando, data = map(str, mensagem.split(' '))
-                test_data = data_valida(data, chat_id)
-                if test_data:
-                    data = str(data).replace("/", "-") #troco o separador da data antes de guardar ela
-                    setattr(aluno, 'data', data)
-                    hora = bot.send_message(chat_id,f"Muito bem, para qual horario? Responda com o número da opção \n"
-                                                    "1- 08:00 às 09:00\n2- 09:01 às 10:00\n"
-                                                    "3- 10:01 às 11:00\n4- 11:01 às 12:00\n"
-                                                    "5- 14:00 às 15:00\n6- 15:01 às 16:00\n"
-                                                    "7- 16:01 às 17:00\n8- 17:01 às 18:00")
-                    bot.register_next_step_handler(hora, ask_phone_number)
-                else:
-                    bot.send_message(chat_id, "Por favor digite uma data valida")
-            except:
-                bot.send_message(chat_id, f"Opa, digite a data conforme o exemplo indicado, sem encurtar o ano{os.linesep}"
-                                      f"Ex: /data 25/06/2022")           
-    else:
-        bot.send_message(chat_id, "Desculpe estão faltando alguns dados,\n envie /start para iniciar o atendimento")
-
-
-def data_valida(data_user, chat_id):  # validando a data enviada
-    try:
-        data_recebida = datetime.strptime(data_user, "%d/%m/%Y")
-        if data_recebida >= datetime.today():
-            #  data_fim = data_recebida.split('')
-            #/ Verificar se a data está disponivel no banco
-            # if data_recebida is None in banco:
-            #   return True
-            # else:
-            #     bot.send_message(chat_id, "Sinto muito esta data não está disponivel, tente com outra data")
-            #        return False
-
-            return True  # tirar esse cara na versão com conexão ao banco
-        else:
-            return False
-    except ValueError:
-        return False
-
-
-def ask_phone_number(message): #perguntar qual o numero da pessoa
-    chat_id = message.chat.id
-    msg = str( message.text)
-    horas = {"1": "08:00:00 09:00:00",
-             "2": "09:01:00 10:00:00",
-             "3": "10:01:00 11:00:00",
-             "4": "11:01:00 12:00:00",
-             "5": "14:00:00 15:00:00",
-             "6": "15:01:00 16:00:00",
-             "7": "16:01:00 17:00:00",
-             "8": "17:01:00 18:00:00"}
-
-    if msg in horas:
-        h = horas[msg].split(' ')
-        setattr(aluno, 'hora_inicio', h[0])
-        setattr(aluno, 'hora_fim', h[1])
-        phone = bot.send_message(chat_id, "Beleza, por motivos de segurança o telegram não me permite ver seu número então, você poderia digitar pra mim? Segue exemplo:\n "
-                                          "Ex: (93)991302546")
-        bot.register_next_step_handler(phone, verific_fim)
-
-    else:
-        new_msg = bot.send_message(chat_id, f"Opa deu algo errado, digite novamente para qual horario vai ser a sua reserva:(Digite o Numero da sua opção) \n"
-                                            "1- 08:00 às 09:00\n2- 09:01 às 10:00\n"
-                                            "3- 10:01 às 11:00\n4- 11:01 às 12:00\n"
-                                            "5- 14:00 às 15:00\n6- 15:01 às 16:00\n"
-                                            "7- 16:01 às 17:00\n8- 17:01 às 18:00")
-        bot.register_next_step_handler(new_msg, ask_phone_number)
-
-
-# verificação final
-def verific_fim(message):
-    chat_id = message.chat.id
-    phone = str(message.text)
-    if tele_user.pessoa_telegram is not None and aluno.cpf is not None and aluno.data is not None \
-            and aluno.hora_inicio is not None and aluno.hora_fim is not None:
-        setattr(aluno, 'telefone', phone)
-        bot.send_message(chat_id, "Certo, sua reserva ja foi agendada, obrigado por usar este serviço")
+            resp = False
         
-        print("Nome: ", aluno.nome)
-        print("CPF: ", aluno.cpf)
-        print("Data: ", aluno.data)
-        print("id_espaço: ", aluno.espaco)
-        print("para_si: ", aluno.para_si)
-        print("telefone: ", aluno.telefone)
-        print("H_inicio: ", aluno.hora_inicio)
-        print("H_fim", aluno.hora_fim)
-        
-        #/ salvar no bd
+        return resp
 
-    else:
-        bot.send_message(chat_id, "Desculpe estão faltando alguns dados,\n envie /start para iniciar o atendimento")
+    except Exception:
+        print("deu merda")
 
 
-# tratar mensagens aleatorias
-@bot.message_handler(func=lambda m: True)
-
-@bot.message_handler(content_types=['audio', 'sticker'])
-def inesp(message):
-    bot.reply_to(message, "Desculpe, não entendi o que disse. Digite \n/start para iniciar o atendimento novamente")
+@bot.message_handler(func=lambda m : True )
+def indef(message):
+    chat_id = message.chat.id
+    bot.send_message(chat_id, "Desculpe não entendi o que disse, clique em /start para fazer uma solicitação de acesso")
 
 
-bot.polling(none_stop=True, interval=3, timeout=20)
+try:
+    bot.polling(none_stop=True, interval=5, timeout=20)
+except:
+    bot.polling(none_stop=True, interval=5, timeout=20)

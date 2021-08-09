@@ -99,7 +99,6 @@ def data_campus(id_discente):
         rec = rec.lower()
         for n in lista:
             if rec in n.get('nome').lower():
-                print(n.get('nome').lower())
                 id_recurso = n['id']
                 print("Recuso encontrado")
                 #print(f"O CAMPUS DO ARROMBADO: {campus}\nO ID DO RECURSO QUE ELE QUER: {id_recurso}")
