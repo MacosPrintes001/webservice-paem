@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import date, datetime, timedelta
+import datetime
 import telebot  # API do Telegram
 import os
 from telebot.apihelper import send_message
@@ -57,7 +58,7 @@ def send_welcome(message):
 
 def acount_verifc(message): #saber se a pessoa tem já tem conta
     try:
-        chat_id = message.chat.id
+        chat_id = message.from_user.id
         msg = str(message.text).lower()
         if msg == "sim":
             resp = bot.send_message(chat_id, "Certo, esse atendimento é para você mesmo?\n Responda com sim ou não")
@@ -76,7 +77,7 @@ def acount_verifc(message): #saber se a pessoa tem já tem conta
 
 def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pra ela
     try:
-        chat_id = message.chat.id
+        chat_id = message.from_user.id
         msg = str(message.text).lower()
         if msg == "sim":
             setattr(aluno, 'para_si', 1)
@@ -95,12 +96,12 @@ def step_for_you(message):#passo para a pessoa dizer se o atendimento vai ser pr
             bot.register_next_step_handler(new_msg, step_for_you)
 
     except EOFError:
-        new_msg = bot.send_message(message.chat.id, "Desculpe, não entendi o que você disse, "
+        new_msg = bot.send_message(message.from_user.id, "Desculpe, não entendi o que você disse, "
                                                     "este atendimento é para você mesmo? responda com Sim ou Não esse 2")
         bot.register_next_step_handler(new_msg, step_for_you)
 
 def search_token(message):
-    chat_id = message.chat.id
+    chat_id = message.from_user.id
     para_quem = aluno.para_si
     cpf = str(message.text)
 
@@ -108,9 +109,9 @@ def search_token(message):
         try:            
             if cpf is not None: 
                 bot.reply_to(message, "certo aguarde um momento...")
-                resp = con_Bot.login(cpf)
+                #resp = con_Bot.login(cpf)
 
-                if resp: #Teste para saber se o CPF está no bd
+                if True: #Teste para saber se o CPF está no bd
                         setattr(aluno, 'cpf', cpf)
                         
                         # salvando informações da pessoa que está reservando
@@ -119,7 +120,7 @@ def search_token(message):
 
                         matricula = bot.send_message(chat_id, "Ok, agora envie a  matricula:")
 
-                        bot.register_next_step_handler(matricula, ask_registration)
+                        bot.register_next_step_handler(matricula, ask_campus)
 
                 elif resp == "erro":
                     resp_user = bot.send_message(chat_id, "Houve um erro de conexão, tente enviar o CPF novamente, caso o erro persista entre em contato conosco")
@@ -139,7 +140,7 @@ def ask_registration(message):
 
 
 def ask_campus(message):
-    chat_id = message.chat.id
+    chat_id = message.from_user.id
     campus = str(message.text)
     try:
         if campus is not None: #verificar de qual campus a pessoa é
@@ -162,7 +163,7 @@ def ask_campus(message):
 
 def agendar_recurso(message):
     try:
-        chat_id = message.chat.id
+        chat_id = message.from_user.id
         texto = str( message.text)
         recursos = {"1": "Laboratório de ensino em Biologia",
                     "2": "Laboratório multidisciplinar de biologia II",
@@ -204,7 +205,7 @@ def agendar_recurso(message):
 #@bot.message_handler(commands=['data']) 
 def my_date(message): # comando data
     para_quem = aluno.para_si
-    chat_id = message.chat.id
+    chat_id = message.from_user.id
     data = str(message.text)
     if para_quem is not None:  # teste para saber se apessoa fez a etapa de dizer para quem é o acesso
             try:
@@ -220,35 +221,42 @@ def my_date(message): # comando data
                                                     "7- 16:01 às 17:00\n8- 17:01 às 18:00")
                     bot.register_next_step_handler(hora, ask_phone_number)
                 else:
-                    bot.send_message(chat_id, "Por favor digite uma data valida")
+                    resp = bot.send_message(chat_id, "Por favor digite uma data valida")
+                    bot.register_next_step_handler(resp, my_date)
             except:
-                bot.send_message(chat_id, f"Opa, digite a data conforme o exemplo indicado, sem encurtar o ano{os.linesep}"
-                                      f"Ex: /data 25/06/2022")           
+                erro_data = bot.send_message(chat_id, f"Opa, digite a data conforme o exemplo indicado, sem encurtar o ano{os.linesep}"
+                                      f"Ex: /data 25/06/2022")     
+
+                bot.register_next_step_handler(erro_data, my_date)      
     else:
         bot.send_message(chat_id, "Desculpe estão faltando alguns dados,\n envie /start para iniciar o atendimento")
 
 
 def data_valida(data_user, chat_id):  # validando a data enviada
     try:
-        data_recebida = datetime.strptime(data_user, "%d/%m/%Y")
-        if data_recebida >= datetime.today():
-            #  data_fim = data_recebida.split('')
-            #/ Verificar se a data está disponivel no banco
-            # if data_recebida is None in banco:
-            #   return True
-            # else:
-            #     bot.send_message(chat_id, "Sinto muito esta data não está disponivel, tente com outra data")
-            #        return False
+        print(data_user)
+        resp = ""
+        data_ = str(data_user).split("/")
 
-            return True  # tirar esse cara na versão com conexão ao banco
+        dia = int(data_[0])
+        mes = int(data_[1])
+        ano = int(data_[2])
+
+        newDate = datetime.date(ano, mes, dia)
+        data_limite = date.today() + timedelta(days=2)
+
+        if newDate >= date.today() and newDate <= data_limite:
+            resp = True
         else:
-            return False
-    except ValueError:
-        return False
+            resp = False
+        
+        return resp
 
+    except Exception:
+        print("deu merda")
 
 def ask_phone_number(message): #perguntar qual o numero da pessoa
-    chat_id = message.chat.id
+    chat_id = message.from_user.id
     msg = str( message.text)
     horas = {"1": "08:00:00 09:00:00",
              "2": "09:01:00 10:00:00",
@@ -278,7 +286,7 @@ def ask_phone_number(message): #perguntar qual o numero da pessoa
 
 # verificação final
 def verific_fim(message):
-    chat_id = message.chat.id
+    chat_id = message.from_user.id
     phone = str(message.text)
     if tele_user.pessoa_telegram is not None and aluno.cpf is not None and aluno.data is not None \
             and aluno.hora_inicio is not None and aluno.hora_fim is not None:

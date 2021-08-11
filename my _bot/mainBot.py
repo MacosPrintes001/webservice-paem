@@ -1,4 +1,4 @@
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import datetime
 import json
 from logging import ERROR, error
@@ -52,6 +52,8 @@ def inicio(message):
 
 
 def check_dados(message):
+
+    usuario = message.from_user.id
     chat_id = message.chat.id
     mensagem = str(message.text)
     bot.send_message(chat_id, "Certo, aguarde um momento enquanto eu confiro os dados...")
@@ -88,7 +90,7 @@ def check_dados(message):
                     if resp:
                         print("resp não foi nula")
                         prepara_agendar(para_si, campus, cpf, matricula, data, hora, recurso,\
-                                telefone,nome, id_discente, id_usuario,id_recurso, token, chat_id)
+                                telefone,nome, id_discente, id_usuario,id_recurso, token, usuario)
                         
                     else:
 
@@ -175,8 +177,7 @@ recurso, telefone,nome, id_discente, id_usuario, id_recurso, token, chat_id): #F
       
 
 def agendar(lista, token, chat_id):
-    print(lista)
-
+    
     headers = {"Authorization":f"Bearer {token}", "Content-Type": "application/json"}
     url = "http://webservicepaem-env.eba-mkyswznu.sa-east-1.elasticbeanstalk.com/api.paem/"
     resp = requests.post(url+"/solicitacoes_acessos/solicitacao_acesso", data=json.dumps(lista),headers=headers)
@@ -209,7 +210,11 @@ def data_valida(data_user):  # validando a data enviada
         ano = int(data_[2])
 
         newDate = datetime.date(ano, mes, dia)
-        if newDate >= date.today():
+        print(type(date.today()))
+
+        data_limite = date.today() + timedelta(days=2)
+
+        if newDate >= date.today() and newDate <= data_limite:
             resp = True
         else:
             resp = False
